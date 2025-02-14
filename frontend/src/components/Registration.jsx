@@ -4,13 +4,10 @@ import { useNavigate } from "react-router-dom";
 
 function Registration() {
     let navigate = useNavigate();
-    /* const {setLoading} = useContext(LoadingContext); */
-    const {loading} = useContext(LoadingContext);
-
+    const {setLoading} = useContext(LoadingContext);
     async function handleRegistration(event) {
         event.preventDefault();
-        /* setLoading(true); */
-        loading = true;
+        setLoading(true);
       /*   setErrorMessage(null);  */// Nollställ tidigare felmeddelanden
 
         let body = JSON.stringify({
@@ -30,17 +27,10 @@ function Registration() {
             let serverRes = await response.json();
 
             if (!response.ok) {
-                /* setLoading(false); */
-                /* loading=false; */
                 throw new Error(serverRes.error || "Registrering misslyckades. Försök igen."); /* ['error'] */
             }
             console.log(serverRes);
             if (serverRes['success']) {
-                /* setLoading(false); */
-               /*  loading=false; */
-                
-               /*  window.location.replace('#activation'); */
-              /*  document.querySelector("#activation-btn").click(); */
               return navigate("/activation");
             } else {
                 throw new Error(serverRes.error || "Server Error occurred...");
@@ -51,7 +41,7 @@ function Registration() {
            /*  setErrorMessage(error.message); */
            
         }finally{
-            loading = false;
+            setLoading(false);
         }
     }
 

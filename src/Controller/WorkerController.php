@@ -12,6 +12,7 @@ use App\Entity\Workers;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Services\PasswordLessService;
 
+#[Route('/api')]
 final class WorkerController extends AbstractController
 {
     #[Route('/registerWorker', name: 'register_worker')]
@@ -19,15 +20,15 @@ final class WorkerController extends AbstractController
     {
         $data = json_decode($request->getContent(), true);
 
-        $company_id = $session->get('user_id');
+        $company_id = $session->get('customer_id');
 
         if(!$company_id) return new JsonResponse(['error'=>'Company id not found ']);
 
-        if(!isset($data['worker_name'],$data['worker_tel'], $data['worker_email'], $data['employment_type'] )) {
+        if(!isset($data['worker_name'], $data['worker_tel'], $data['worker_email'], $data['employment_type'])) {
             return new JsonResponse(['error' => 'Missing required fields']);
         }
 
-        if(!ctype_digit($data['worker_tel'])){ /* FÅR KANSKE ÄNDRA SEN +46 ETC */
+        if(!ctype_digit($data['worker_tel'])){ /* FÅR KANSKE ÄNDRA SEN +46 ETC " libphonenumber" biblotek */
             return new JsonResponse(['error' => 'Phonenumber must only contain digits']);
         }
 

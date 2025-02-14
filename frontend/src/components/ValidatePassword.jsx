@@ -1,21 +1,28 @@
 
-import React, {useContext} from 'react';
+import React, {useContext, useState} from 'react';
 import { LoadingContext, AuthContext } from '../App';
-import { useNavigate, Navigate } from "react-router-dom";
+import { useNavigate, Navigate, useLocation } from "react-router-dom";
 
 function ValidatePassword() {
 
     let navigate = useNavigate();
+    let location = useLocation();
+    let loginType = location.state?.loginType
     const {setLoading} = useContext(LoadingContext);
     const {setIsAuth, userId, setUserId, userRole, setUserRole, userName, setUserName, checkSessionStatus} = useContext(AuthContext);
 
+   console.log("Användartyp:", loginType);
     async function handleValidation(event) {
         event.preventDefault();
         setLoading(true);
-        /*   setErrorMessage(null);  */// Nollställ tidigare felmeddelanden
+        /*   setErrorMessage(null);  */
+
+        /* SEN I WORKER LOGIN PÅ CLIENTEN SKA JAG SKICKA MED USELOCATION OCKSÅ DÄR DET SKA STÅ "worker" */
+
 
         let body = JSON.stringify({
-            password:event.target.password.value
+            password:event.target.password.value,
+            account_type: loginType
         });
 
         try {
@@ -40,7 +47,6 @@ function ValidatePassword() {
                 setIsAuth(true);
 /* RETUNERA FRÅN SERVERN HELA USERN. SÅ MAN FÅR ACTIVE_USER STATE */
                     return navigate("/home");
-               /*      return <Navigate to="/home"/> */
             } else {
                 console.log("Something went wrong");
                 setIsAuth(false);

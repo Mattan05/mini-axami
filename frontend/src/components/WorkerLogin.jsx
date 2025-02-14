@@ -3,7 +3,7 @@ import React, {useContext} from 'react';
 import { LoadingContext, AuthContext } from '../App';
 import { useNavigate } from "react-router-dom";
 
-function Login() {
+function WorkerLogin() {
     let navigate = useNavigate();
     const {setLoading} = useContext(LoadingContext);
     const {userId, setUserId, userRole, setUserRole, userName, setUserName, checkSessionStatus} = useContext(AuthContext);
@@ -14,11 +14,11 @@ function Login() {
         /*   setErrorMessage(null);  */// Nollställ tidigare felmeddelanden
 
         let body = JSON.stringify({
-            email:event.target.email.value
+            worker_email:event.target.email.value
         });
 
         try {
-            let response = await fetch('http://localhost/mini-axami/public/api/login', {
+            let response = await fetch('http://localhost/mini-axami/public/api/loginWorker', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: body
@@ -32,7 +32,7 @@ function Login() {
 
             if (serverRes['success']) {
                 setLoading(false);
-                const loginType = 'customer';
+                const loginType = 'worker';
                 return navigate("/passwordValidation", { state: { loginType } });
             } else {
                 throw new Error(serverRes.error || "Server Error occurred...");
@@ -47,12 +47,12 @@ function Login() {
         console.log("Canceled");
         return navigate('/');
     }
-
+    
     return ( 
     <>
         <div className="container d-flex justify-content-center align-items-center min-vh-100">
             <div className="card shadow-lg p-4" style={{ width: "400px", borderRadius: "12px" }}>
-                <h3 className="text-center mb-4">Logga in</h3>
+                <h3 className="text-center mb-4">Logga in Worker</h3>
                 <form onSubmit={handleLogin} onReset={handleCancel}>
                     <div className="mb-3">
                         <label className="form-label">Email</label>
@@ -68,4 +68,4 @@ function Login() {
     </> );
 }
 
-export default Login;
+export default WorkerLogin;

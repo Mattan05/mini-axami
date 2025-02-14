@@ -11,6 +11,7 @@ use App\Repository\CustomersRepository;
 use App\Services\EmailService;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use App\Services\PasswordLessService;
+use App\Repository\WorkersRepository;
 
 #[Route('/api')]
 final class LoginController extends AbstractController
@@ -130,7 +131,7 @@ final class LoginController extends AbstractController
     }
 
     #[Route('/passwordLess', name: 'password_validation', methods:['POST'])]
-    public function PasswordValidation(Request $request, CustomersRepository $customerRepository, SessionInterface $session): JsonResponse
+    public function PasswordValidation(Request $request, WorkersRepository $workersRepository, CustomersRepository $customerRepository, SessionInterface $session): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         /* ATT GÖRA: I data skicka med ett fält för om det är customer eller worker och därefter använd antingen customerrespos eller workerrepos 
@@ -143,9 +144,11 @@ final class LoginController extends AbstractController
         if(!isset($data['password'], $data['account_type'])){ 
             return new JsonResponse(['error' => 'Missing required fields']);
         }
+
         $hashedPassword = "";
+        $account_email = '';
         $hashedPassword = $session->get("realPassword");
-        $customerEmail = $session->get('email');
+        $account_email = $session->get('email');
         /* FÅR BARA DETTA I SESSIONS IBLAND */
 
        /*  return new JsonResponse(['error'=>'customerEmail: ' . $customerEmail . " " . 'hashedPassword: ' . $hashedPassword]); */
@@ -153,20 +156,33 @@ final class LoginController extends AbstractController
         if(!password_verify($data['password'], $hashedPassword)){
             return new JsonResponse(['error'=>'Password is incorrect']);
         }
+        if($data['account_type'] === 'worker') {
+            $worker = $workersRepository->findOneBy(['worker_email'=>$account_email]);
 
-        $customer = $customerRepository->findOneBy(['customer_email'=>$customerEmail]);
-
-        if(!isset($customer)){
-            return new JsonResponse(['error'=>'Customer could not be found..']);
+            if(!isset($worker)){
+                return new JsonResponse(['error'=>'Worker could not be found..']);
+            }
+            $session->invalidate();
+            $session->set( 'worker_id', $worker->getId());
+            $session->set("user_id", $worker->getId());/* DETTA SKA SEN OCKSÅ VARA WORKERS...? */
+            $session->set("role", $worker->getRoles());
+            $session->set("name", $worker->getName());
+            return new JsonResponse(["success"=>['user_id'=>$worker->getId(), 'role'=>$worker->getRoles(), 'name'=>$worker->getName()] ]);
+        }else{
+            $customer = $customerRepository->findOneBy(['customer_email'=>$account_email]);
+  
+            if(!isset($customer)){
+                return new JsonResponse(['error'=>'Customer could not be found..']);
+            }
+            $session->invalidate();
+            $session->set('customer_id', $customer->getId());
+            $session->set("user_id", $customer->getId());
+            $session->set("role", $customer->getRoles());
+            $session->set("name", $customer->getName());
+            return new JsonResponse(["success"=>['user_id'=>$customer->getId(), 'role'=>$customer->getRoles(), 'name'=>$customer->getName()] ]);
         }
 
-        $session->invalidate();
-        $session->set('customer_id', $customer->getId());
-        $session->set("user_id", $customer->getId());/* DETTA SKA SEN OCKSÅ VARA WORKERS...? */
-        $session->set("role", $customer->getRoles());
-        $session->set("name", $customer->getName());
-
-        return new JsonResponse(["success"=>['user_id'=>$customer->getId(), 'role'=>$customer->getRoles(), 'name'=>$customer->getName()] ]);
+        
 
         /* ha en timer som efter ett visst tag behöver man skicka om. 30 sekunder */
     }

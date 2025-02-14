@@ -14,6 +14,8 @@ import CreateUnit from './components/CreateUnit';
 import ShowUnits from './components/ShowUnits';
 import UnitPage from './components/UnitPage';
 import UnitUpdate from './components/UnitUpdate';
+import WorkerLogin from './components/WorkerLogin';
+import WorkerRegister from './components/WorkerRegister';
 
 export const LoadingContext = createContext();
 export const AuthContext = createContext();
@@ -93,9 +95,11 @@ function App() {
                         <Routes>
                             <Route path="/" element={<GuestHome  />} />
                             <Route path="/register" element={<Registration />} />
+                            <Route path="/workerRegister" element={<WorkerRegister />} />
                             <Route path="/activation" element={<LicenseActivation />} />
                            {/*  <Route path="/home" element={<Home />} /> */}
                             <Route path="/customerLogin" element={<Login />} />
+                            <Route path="/workerLogin" element={<WorkerLogin />} />
                             <Route path="/passwordValidation" element={<ValidatePassword />} />
                             {/* <Route path="/unit/create" element={<CreateUnit />} />
                             <Route path="/unit/show" element={<ShowUnits />} /> */}
