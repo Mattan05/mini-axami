@@ -1,0 +1,13 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Licensekeys{% endblock %}
+
+{% block body %}
+    <h1>Edit Licensekeys</h1>
+
+    {{ include('licensekeys/_form.html.twig', {'button_label': 'Update'}) }}
+
+    <a href="{{ path('app_licensekeys_index') }}">back to list</a>
+
+    {{ include('licensekeys/_delete_form.html.twig') }}
+{% endblock %}

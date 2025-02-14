@@ -1,0 +1,20 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    max-width: 100%;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+.views {
+    display: none !important;
+    padding-bottom: 10vw !important;
+}
+
+.views:target {
+    display: block !important;
+}
+

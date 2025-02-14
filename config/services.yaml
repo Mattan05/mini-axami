@@ -19,6 +19,15 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+    
+    App\Services\LicenseKeyService:
+        class: App\Services\LicenseKeyService
 
+
+    App\Services\EmailService:
+        class: App\Services\EmailService
+
+    App\Services\PasswordLessService:
+        class: App\Services\PasswordLessService
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

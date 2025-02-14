@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Licensekeys{% endblock %}
+
+{% block body %}
+    <h1>Licensekeys</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ licensekey.id }}</td>
+            </tr>
+            <tr>
+                <th>License_key</th>
+                <td>{{ licensekey.licenseKey }}</td>
+            </tr>
+            <tr>
+                <th>IsActive</th>
+                <td>{{ licensekey.isActive ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>Valid_until</th>
+                <td>{{ licensekey.validUntil ? licensekey.validUntil|date('Y-m-d H:i:s') : '' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('app_licensekeys_index') }}">back to list</a>
+
+    <a href="{{ path('app_licensekeys_edit', {'id': licensekey.id}) }}">edit</a>
+
+    {{ include('licensekeys/_delete_form.html.twig') }}
+{% endblock %}

@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New Licensekeys{% endblock %}
+
+{% block body %}
+    <h1>Create new Licensekeys</h1>
+
+    {{ include('licensekeys/_form.html.twig') }}
+
+    <a href="{{ path('app_licensekeys_index') }}">back to list</a>
+{% endblock %}
