@@ -7,6 +7,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use App\Enum\UnitTaskStatus;
+use App\Enum\UnitTaskCategory;
 
 #[ORM\Entity(repositoryClass: UnitTasksRepository::class)]
 class UnitTasks
@@ -22,11 +24,13 @@ class UnitTasks
     #[ORM\ManyToOne(inversedBy: 'unitTasks')]
     private ?Workers $created_by = null;
 
-    #[ORM\Column(length: 100)]
-    private ?string $status = null;
+    #[ORM\Column(enumType: UnitTaskStatus::class)]
+    private ?UnitTaskStatus $status = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $category = null;
+    #[ORM\Column(enumType:UnitTaskCategory::class)]
+    private ?UnitTaskCategory $category = null;
+
+
 
     /**
      * @var Collection<int, Units>
@@ -95,10 +99,10 @@ class UnitTasks
 
     public function getStatus(): ?string
     {
-        return $this->status;
+        return $this->status ? $this->status->value : null;
     }
 
-    public function setStatus(string $status): static
+    public function setStatus(UnitTaskStatus $status): static
     {
         $this->status = $status;
 
@@ -107,10 +111,10 @@ class UnitTasks
 
     public function getCategory(): ?string
     {
-        return $this->category;
+        return $this->status ? $this->status->value : null;
     }
 
-    public function setCategory(string $category): static
+    public function setCategory(UnitTaskCategory $category): static
     {
         $this->category = $category;
 

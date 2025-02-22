@@ -18601,6 +18601,8 @@ var _workerLogin = require("./components/WorkerLogin");
 var _workerLoginDefault = parcelHelpers.interopDefault(_workerLogin);
 var _workerRegister = require("./components/WorkerRegister");
 var _workerRegisterDefault = parcelHelpers.interopDefault(_workerRegister);
+var _workerHome = require("./components/WorkerHome");
+var _workerHomeDefault = parcelHelpers.interopDefault(_workerHome);
 var _s = $RefreshSig$();
 const LoadingContext = /*#__PURE__*/ (0, _react.createContext)();
 const AuthContext = /*#__PURE__*/ (0, _react.createContext)();
@@ -18611,7 +18613,7 @@ function App() {
     const [data, setData] = (0, _react.useState)(null);
     const [error, setError] = (0, _react.useState)(null);
     const [userId, setUserId] = (0, _react.useState)(null);
-    const [userRole, setUserRole] = (0, _react.useState)(null);
+    const [userRole, setUserRole] = (0, _react.useState)([]);
     const [userName, setUserName] = (0, _react.useState)(null);
     (0, _react.useEffect)(()=>{
         async function checkSessionStatus() {
@@ -18648,14 +18650,14 @@ function App() {
    /api/auth retunerar den att jag är inloggad. fel på isauth någonstans. checksessionstatus eller login  */ function PrivateRoute({ isAuth }) {
         return isAuth ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Outlet), {}, void 0, false, {
             fileName: "src/App.jsx",
-            lineNumber: 74,
+            lineNumber: 75,
             columnNumber: 21
         }, this) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Navigate), {
-            to: "/customerLogin",
+            to: "/",
             replace: true
         }, void 0, false, {
             fileName: "src/App.jsx",
-            lineNumber: 74,
+            lineNumber: 75,
             columnNumber: 34
         }, this);
     }
@@ -18666,14 +18668,14 @@ function App() {
                 children: JSON.stringify(loading)
             }, void 0, false, {
                 fileName: "src/App.jsx",
-                lineNumber: 80,
+                lineNumber: 81,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _headerDefault.default), {
                 isAuth: isAuth
             }, void 0, false, {
                 fileName: "src/App.jsx",
-                lineNumber: 81,
+                lineNumber: 82,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("main", {
@@ -18705,97 +18707,101 @@ function App() {
                                 }
                             }, void 0, false, {
                                 fileName: "src/App.jsx",
-                                lineNumber: 87,
+                                lineNumber: 88,
                                 columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "src/App.jsx",
-                            lineNumber: 86,
+                            lineNumber: 87,
                             columnNumber: 21
-                        }, this) : /*    <GuestHome />, */ /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Routes), {
+                        }, this) : /*    <GuestHome />, */ /* JAG BEHÖVER TÄNKA HUR JAG VILL GÖRA MED SESSIONS NÄR DET KOMMER TILL USERS OCKSÅ. HÅLLA KOLL MELLAN WORKER OCH CUSTOMER HUR VAD HMM
+                        SEN ÄVEN FUNKAR INTE PASSWORD VERFICATION FÖR WORKER PÅGRUND AV VAD JAG TROR ATT SESSIONEN KRÅNGLAR PRECIS INNAN OCH I SERVER API ROUTE SÅ ANVÄNDER
+                        DEN SESSIONEN FÖR ATT HÄMTA PASSWORDET. DET TROR JAG ÄR FÖR ATT PASSWORDVALIDATION INTE ÄR UNDER PRIVATE OCH OM MAN ÄR INLOGGAD SOM FÖRETAG SÅ BLIR DET 
+                        KONSTIGT
+                     */ /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Routes), {
                             children: [
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                     path: "/",
                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _guestHomeDefault.default), {}, void 0, false, {
                                         fileName: "src/App.jsx",
-                                        lineNumber: 96,
+                                        lineNumber: 105,
                                         columnNumber: 54
                                     }, void 0)
                                 }, void 0, false, {
                                     fileName: "src/App.jsx",
-                                    lineNumber: 96,
+                                    lineNumber: 105,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                     path: "/register",
                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _registrationDefault.default), {}, void 0, false, {
                                         fileName: "src/App.jsx",
-                                        lineNumber: 97,
+                                        lineNumber: 106,
                                         columnNumber: 62
                                     }, void 0)
                                 }, void 0, false, {
                                     fileName: "src/App.jsx",
-                                    lineNumber: 97,
+                                    lineNumber: 106,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                     path: "/workerRegister",
                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _workerRegisterDefault.default), {}, void 0, false, {
                                         fileName: "src/App.jsx",
-                                        lineNumber: 98,
+                                        lineNumber: 107,
                                         columnNumber: 68
                                     }, void 0)
                                 }, void 0, false, {
                                     fileName: "src/App.jsx",
-                                    lineNumber: 98,
+                                    lineNumber: 107,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                     path: "/activation",
                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _licenseActivationDefault.default), {}, void 0, false, {
                                         fileName: "src/App.jsx",
-                                        lineNumber: 99,
+                                        lineNumber: 108,
                                         columnNumber: 64
                                     }, void 0)
                                 }, void 0, false, {
                                     fileName: "src/App.jsx",
-                                    lineNumber: 99,
+                                    lineNumber: 108,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                     path: "/customerLogin",
                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _loginDefault.default), {}, void 0, false, {
                                         fileName: "src/App.jsx",
-                                        lineNumber: 101,
+                                        lineNumber: 110,
                                         columnNumber: 67
                                     }, void 0)
                                 }, void 0, false, {
                                     fileName: "src/App.jsx",
-                                    lineNumber: 101,
+                                    lineNumber: 110,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                     path: "/workerLogin",
                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _workerLoginDefault.default), {}, void 0, false, {
                                         fileName: "src/App.jsx",
-                                        lineNumber: 102,
+                                        lineNumber: 111,
                                         columnNumber: 65
                                     }, void 0)
                                 }, void 0, false, {
                                     fileName: "src/App.jsx",
-                                    lineNumber: 102,
+                                    lineNumber: 111,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                     path: "/passwordValidation",
                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _validatePasswordDefault.default), {}, void 0, false, {
                                         fileName: "src/App.jsx",
-                                        lineNumber: 103,
+                                        lineNumber: 112,
                                         columnNumber: 72
                                     }, void 0)
                                 }, void 0, false, {
                                     fileName: "src/App.jsx",
-                                    lineNumber: 103,
+                                    lineNumber: 112,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
@@ -18803,7 +18809,7 @@ function App() {
                                         isAuth: isAuth
                                     }, void 0, false, {
                                         fileName: "src/App.jsx",
-                                        lineNumber: 108,
+                                        lineNumber: 117,
                                         columnNumber: 45
                                     }, void 0),
                                     children: [
@@ -18811,97 +18817,109 @@ function App() {
                                             path: "/home",
                                             element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _homeDefault.default), {}, void 0, false, {
                                                 fileName: "src/App.jsx",
-                                                lineNumber: 109,
+                                                lineNumber: 118,
                                                 columnNumber: 62
                                             }, void 0)
                                         }, void 0, false, {
                                             fileName: "src/App.jsx",
-                                            lineNumber: 109,
+                                            lineNumber: 118,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                             path: "/unitCreate",
                                             element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _createUnitDefault.default), {}, void 0, false, {
                                                 fileName: "src/App.jsx",
-                                                lineNumber: 110,
+                                                lineNumber: 119,
                                                 columnNumber: 68
                                             }, void 0)
                                         }, void 0, false, {
                                             fileName: "src/App.jsx",
-                                            lineNumber: 110,
+                                            lineNumber: 119,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                             path: "/unitShow",
                                             element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _showUnitsDefault.default), {}, void 0, false, {
                                                 fileName: "src/App.jsx",
-                                                lineNumber: 111,
+                                                lineNumber: 120,
                                                 columnNumber: 66
                                             }, void 0)
                                         }, void 0, false, {
                                             fileName: "src/App.jsx",
-                                            lineNumber: 111,
+                                            lineNumber: 120,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                             path: "/unit/:id",
                                             element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _unitPageDefault.default), {}, void 0, false, {
                                                 fileName: "src/App.jsx",
-                                                lineNumber: 112,
+                                                lineNumber: 121,
                                                 columnNumber: 66
                                             }, void 0)
                                         }, void 0, false, {
                                             fileName: "src/App.jsx",
-                                            lineNumber: 112,
+                                            lineNumber: 121,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                             path: "/unit/update/:id",
                                             element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _unitUpdateDefault.default), {}, void 0, false, {
                                                 fileName: "src/App.jsx",
-                                                lineNumber: 113,
+                                                lineNumber: 122,
                                                 columnNumber: 73
                                             }, void 0)
                                         }, void 0, false, {
                                             fileName: "src/App.jsx",
-                                            lineNumber: 113,
+                                            lineNumber: 122,
+                                            columnNumber: 33
+                                        }, this),
+                                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
+                                            path: "/workerHome",
+                                            element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _workerHomeDefault.default), {}, void 0, false, {
+                                                fileName: "src/App.jsx",
+                                                lineNumber: 123,
+                                                columnNumber: 68
+                                            }, void 0)
+                                        }, void 0, false, {
+                                            fileName: "src/App.jsx",
+                                            lineNumber: 123,
                                             columnNumber: 33
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "src/App.jsx",
-                                    lineNumber: 108,
+                                    lineNumber: 117,
                                     columnNumber: 29
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "src/App.jsx",
-                            lineNumber: 95,
+                            lineNumber: 104,
                             columnNumber: 25
                         }, this)
                     }, void 0, false, {
                         fileName: "src/App.jsx",
-                        lineNumber: 84,
+                        lineNumber: 85,
                         columnNumber: 17
                     }, this)
                 }, void 0, false, {
                     fileName: "src/App.jsx",
-                    lineNumber: 83,
+                    lineNumber: 84,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "src/App.jsx",
-                lineNumber: 82,
+                lineNumber: 83,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "src/App.jsx",
-        lineNumber: 79,
+        lineNumber: 80,
         columnNumber: 9
     }, this);
 }
-_s(App, "Dn2UggyszM8Lo+kP5+RCuJZNfNc=");
+_s(App, "ITkfYlboEDE1BdyqAUbLSA5VYAI=");
 _c = App;
 exports.default = App;
 var _c;
@@ -18912,7 +18930,7 @@ $RefreshReg$(_c, "App");
   window.$RefreshReg$ = prevRefreshReg;
   window.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"iTorj","react":"21dqq","react-router-dom":"9xmpe","./Style.css":"9gi3U","react-bootstrap/Spinner":"2r8jr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru","./components/Registration":"87Mli","./components/LicenseActivation":"1TBWP","./components/Header":"knC38","./components/GuestHome":"ljVh1","./components/Home":"5rQzE","./components/ValidatePassword":"e7pdF","./components/Login":"9LO69","./components/CreateUnit":"3bL4V","./components/ShowUnits":"bmKZj","./components/UnitPage":"il2F8","./components/UnitUpdate":"if23U","./components/WorkerLogin":"l9WvT","./components/WorkerRegister":"lQTmi"}],"9xmpe":[function(require,module,exports,__globalThis) {
+},{"react/jsx-dev-runtime":"iTorj","react":"21dqq","react-router-dom":"9xmpe","./Style.css":"9gi3U","react-bootstrap/Spinner":"2r8jr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru","./components/Registration":"87Mli","./components/LicenseActivation":"1TBWP","./components/Header":"knC38","./components/GuestHome":"ljVh1","./components/Home":"5rQzE","./components/ValidatePassword":"e7pdF","./components/Login":"9LO69","./components/CreateUnit":"3bL4V","./components/ShowUnits":"bmKZj","./components/UnitPage":"il2F8","./components/UnitUpdate":"if23U","./components/WorkerLogin":"l9WvT","./components/WorkerRegister":"lQTmi","./components/WorkerHome":"f6fIj"}],"9xmpe":[function(require,module,exports,__globalThis) {
 /**
  * React Router DOM v6.29.0
  *
@@ -27510,12 +27528,31 @@ var _s = $RefreshSig$();
 function Home() {
     _s();
     const { isAuth, userId, setUserId, userRole, setUserRole, userName, setUserName } = (0, _react.useContext)((0, _app.AuthContext));
-    /* const navigate = useNavigate(); */ /* console.log("before");
+    const navigate = (0, _reactRouterDom.useNavigate)();
+    /* console.log("before");
     console.log(userName); */ /*  useEffect(() => {
         if (!isAuth) {
             navigate('/');
         }
     }, []); */ //HM checksession. DET ÄR FEL MED SESSION. I LOGIN SÅ REDIRECTAR JAG INNAN OMRENDERING EFTER SET FUNKTION PÅ USERID... HUR SKA JAG KONTROLLERA OM DET FINNS SESSION AKTIV PÅ PROTECTED ROUTES..
+    async function logout() {
+        try {
+            let res = await fetch('http://localhost/mini-axami/public/api/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!res.ok) console.log('fetch failed');
+            let jsonRes = await res.json();
+            if (jsonRes.success) {
+                console.log(jsonRes.success);
+                navigate('/');
+            } else console.log(jsonRes.error);
+        } catch (error) {
+            console.log('Triggered catch', error);
+        }
+    }
     return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
         children: isAuth ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
             children: [
@@ -27524,7 +27561,7 @@ function Home() {
                     children: "V\xe4lkommen till Mini axami Underh\xe5llssystem"
                 }, void 0, false, {
                     fileName: "src/components/Home.jsx",
-                    lineNumber: 22,
+                    lineNumber: 47,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h3", {
@@ -27534,13 +27571,13 @@ function Home() {
                             children: userName
                         }, void 0, false, {
                             fileName: "src/components/Home.jsx",
-                            lineNumber: 23,
+                            lineNumber: 48,
                             columnNumber: 26
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "src/components/Home.jsx",
-                    lineNumber: 23,
+                    lineNumber: 48,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h3", {
@@ -27550,13 +27587,13 @@ function Home() {
                             children: userId
                         }, void 0, false, {
                             fileName: "src/components/Home.jsx",
-                            lineNumber: 24,
+                            lineNumber: 49,
                             columnNumber: 24
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "src/components/Home.jsx",
-                    lineNumber: 24,
+                    lineNumber: 49,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h3", {
@@ -27566,13 +27603,13 @@ function Home() {
                             children: userRole
                         }, void 0, false, {
                             fileName: "src/components/Home.jsx",
-                            lineNumber: 25,
+                            lineNumber: 50,
                             columnNumber: 26
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "src/components/Home.jsx",
-                    lineNumber: 25,
+                    lineNumber: 50,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Link), {
@@ -27581,7 +27618,7 @@ function Home() {
                     children: "Skapa Unit"
                 }, void 0, false, {
                     fileName: "src/components/Home.jsx",
-                    lineNumber: 27,
+                    lineNumber: 52,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Link), {
@@ -27590,14 +27627,27 @@ function Home() {
                     children: "Visa Units"
                 }, void 0, false, {
                     fileName: "src/components/Home.jsx",
-                    lineNumber: 28,
+                    lineNumber: 53,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                    onClick: logout,
+                    className: "btn bg-danger text-light",
+                    children: "Logout"
+                }, void 0, false, {
+                    fileName: "src/components/Home.jsx",
+                    lineNumber: 54,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {}, void 0, false)
     }, void 0, false);
 }
-_s(Home, "TEpiq6GXksdk53/l7Qg4zQJIb0s=");
+_s(Home, "uRPgrBzTSe7HCTFGWE9oLnOQXs0=", false, function() {
+    return [
+        (0, _reactRouterDom.useNavigate)
+    ];
+});
 _c = Home;
 exports.default = Home;
 var _c;
@@ -27649,6 +27699,8 @@ function ValidatePassword() {
             });
             let serverRes = await response.json();
             if (!response.ok) throw new Error(serverRes.error || "Inloggning misslyckades. F\xf6rs\xf6k igen.");
+            console.log(serverRes.success);
+            console.log(serverRes);
             if (serverRes.success) {
                 console.log('Login Successful');
                 setLoading(false);
@@ -27656,7 +27708,8 @@ function ValidatePassword() {
                 setUserName(serverRes['success']['name']);
                 setUserRole(serverRes['success']['role']);
                 setIsAuth(true);
-                /* RETUNERA FRÅN SERVERN HELA USERN. SÅ MAN FÅR ACTIVE_USER STATE */ return navigate("/home");
+                /* RETUNERA FRÅN SERVERN HELA USERN. SÅ MAN FÅR ACTIVE_USER STATE */ if (loginType === 'worker') return navigate('/workerHome');
+                else if (loginType === 'customer') return navigate("/home");
             } else {
                 console.log("Something went wrong");
                 setIsAuth(false);
@@ -27670,7 +27723,8 @@ function ValidatePassword() {
     }
     function handleCancel() {
         console.log("Canceled");
-        return navigate('/customerLogin');
+        if (loginType === 'worker') return navigate('/workerLogin');
+        else if (loginType === 'customer') return navigate('/customerLogin');
     }
     return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
         children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -27687,7 +27741,7 @@ function ValidatePassword() {
                         children: "Ange Eng\xe5ngsl\xf6senord"
                     }, void 0, false, {
                         fileName: "src/components/ValidatePassword.jsx",
-                        lineNumber: 71,
+                        lineNumber: 81,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("form", {
@@ -27698,7 +27752,7 @@ function ValidatePassword() {
                                 children: "En eng\xe5ngskod har skickats till din e-post. Ange den nedan f\xf6r att logga in"
                             }, void 0, false, {
                                 fileName: "src/components/ValidatePassword.jsx",
-                                lineNumber: 73,
+                                lineNumber: 83,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -27711,12 +27765,12 @@ function ValidatePassword() {
                                     required: true
                                 }, void 0, false, {
                                     fileName: "src/components/ValidatePassword.jsx",
-                                    lineNumber: 75,
+                                    lineNumber: 85,
                                     columnNumber: 25
                                 }, this)
                             }, void 0, false, {
                                 fileName: "src/components/ValidatePassword.jsx",
-                                lineNumber: 74,
+                                lineNumber: 84,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -27728,7 +27782,7 @@ function ValidatePassword() {
                                         children: "Logga in"
                                     }, void 0, false, {
                                         fileName: "src/components/ValidatePassword.jsx",
-                                        lineNumber: 78,
+                                        lineNumber: 88,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
@@ -27737,30 +27791,30 @@ function ValidatePassword() {
                                         children: "Avbryt"
                                     }, void 0, false, {
                                         fileName: "src/components/ValidatePassword.jsx",
-                                        lineNumber: 79,
+                                        lineNumber: 89,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/ValidatePassword.jsx",
-                                lineNumber: 77,
+                                lineNumber: 87,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "src/components/ValidatePassword.jsx",
-                        lineNumber: 72,
+                        lineNumber: 82,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "src/components/ValidatePassword.jsx",
-                lineNumber: 70,
+                lineNumber: 80,
                 columnNumber: 13
             }, this)
         }, void 0, false, {
             fileName: "src/components/ValidatePassword.jsx",
-            lineNumber: 69,
+            lineNumber: 79,
             columnNumber: 9
         }, this)
     }, void 0, false);
@@ -29274,25 +29328,32 @@ function WorkerRegister() {
     _s();
     let navigate = (0, _reactRouterDom.useNavigate)();
     const { setLoading } = (0, _react.useContext)((0, _app.LoadingContext));
+    const [allCompanies, setAllCompanies] = (0, _react.useState)([]);
+    (0, _react.useEffect)(()=>{
+        getAllCompanies();
+    }, []);
     async function handleRegistration(event) {
         event.preventDefault();
         setLoading(true);
-        /*   setErrorMessage(null);  */ let body = JSON.stringify({
-            worker_name: event.target.name.value,
+        /*   setErrorMessage(null);  */ const body = JSON.stringify({
+            worker_name: event.target.worker_name.value,
             worker_tel: event.target.worker_tel.value,
             worker_email: event.target.worker_email.value,
-            employment_type: event.target.employment_type.value
+            employment_type: event.target.employment_type.value,
+            workerCompany: event.target.companyChoice.value
         });
+        console.log(body);
         try {
-            let response = await fetch('http://localhost/mini-axami/public/api/registerWorker', {
+            let res = await fetch('http://localhost/mini-axami/public/api/registerWorker', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: body
             });
-            let serverRes = await response.json();
-            if (!response.ok) throw new Error(serverRes.error || "Registrering av Worker misslyckades. F\xf6rs\xf6k igen."); /* ['error'] */ 
+            console.log(res);
+            if (!res.ok) console.log(res.statusText || "Registrering av Worker misslyckades. F\xf6rs\xf6k igen."); /* ['error'] */ 
+            const serverRes = await res.json();
             console.log(serverRes);
             if (serverRes['success']) return navigate("/workerLogin");
             else console.log(serverRes.error || "Server Error occurred...");
@@ -29301,6 +29362,29 @@ function WorkerRegister() {
         /*  setErrorMessage(error.message); */ } finally{
             setLoading(false);
         }
+    }
+    async function getAllCompanies() {
+        /*  setLoading(true); */ try {
+            let response = await fetch('http://localhost/mini-axami/public/api/getAllCompanies', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            let serverRes = await response.json();
+            if (!response.ok) console.log(serverRes.error || "H\xe4mtning av f\xf6retag misslyckades. F\xf6rs\xf6k igen.");
+            console.log(serverRes['success']);
+            if (serverRes['success']) {
+                if (Array.isArray(serverRes['success'])) setAllCompanies(serverRes['success']);
+                else if (serverRes['success'] && typeof serverRes['success'] === 'object') setAllCompanies([
+                    serverRes['success']
+                ]); // Gör om till en array om det är ett objekt
+            } else console.log(serverRes.error || "Server Error occurred...");
+        } catch (error) {
+            console.error("Fel vid h\xe4mtning av f\xf6retag:", error);
+        /*  setErrorMessage(error.message); */ } /* finally{
+            setLoading(false);
+        } */ 
     }
     function handleCancel() {
         console.log("Canceled");
@@ -29321,7 +29405,7 @@ function WorkerRegister() {
                         children: "Registrera Worker"
                     }, void 0, false, {
                         fileName: "src/components/WorkerRegister.jsx",
-                        lineNumber: 56,
+                        lineNumber: 98,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("form", {
@@ -29336,24 +29420,24 @@ function WorkerRegister() {
                                         children: "F\xf6rnamn & Efternamn"
                                     }, void 0, false, {
                                         fileName: "src/components/WorkerRegister.jsx",
-                                        lineNumber: 59,
+                                        lineNumber: 101,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
                                         className: "form-control",
                                         type: "text",
-                                        name: "name",
-                                        placeholder: "F\xf6retagsnamn",
+                                        name: "worker_name",
+                                        placeholder: "F\xf6rnamn & Efternamn",
                                         required: true
                                     }, void 0, false, {
                                         fileName: "src/components/WorkerRegister.jsx",
-                                        lineNumber: 60,
+                                        lineNumber: 102,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/WorkerRegister.jsx",
-                                lineNumber: 58,
+                                lineNumber: 100,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -29364,24 +29448,24 @@ function WorkerRegister() {
                                         children: "Email"
                                     }, void 0, false, {
                                         fileName: "src/components/WorkerRegister.jsx",
-                                        lineNumber: 64,
+                                        lineNumber: 106,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
                                         className: "form-control",
                                         type: "email",
                                         name: "worker_email",
-                                        placeholder: "Arbetar Email",
+                                        placeholder: "Arbetarens Email",
                                         required: true
                                     }, void 0, false, {
                                         fileName: "src/components/WorkerRegister.jsx",
-                                        lineNumber: 65,
+                                        lineNumber: 107,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/WorkerRegister.jsx",
-                                lineNumber: 63,
+                                lineNumber: 105,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -29392,7 +29476,7 @@ function WorkerRegister() {
                                         children: "Telefonnummer"
                                     }, void 0, false, {
                                         fileName: "src/components/WorkerRegister.jsx",
-                                        lineNumber: 69,
+                                        lineNumber: 111,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
@@ -29403,15 +29487,32 @@ function WorkerRegister() {
                                         required: true
                                     }, void 0, false, {
                                         fileName: "src/components/WorkerRegister.jsx",
-                                        lineNumber: 70,
+                                        lineNumber: 112,
                                         columnNumber: 25
-                                    }, this)
+                                    }, this),
+                                    " "
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/WorkerRegister.jsx",
-                                lineNumber: 68,
+                                lineNumber: 110,
                                 columnNumber: 21
                             }, this),
+                            allCompanies ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("select", {
+                                className: "js-example-basic-single",
+                                name: "companyChoice",
+                                children: allCompanies.map((company)=>/*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
+                                        value: company.id,
+                                        children: company.name
+                                    }, company.id, false, {
+                                        fileName: "src/components/WorkerRegister.jsx",
+                                        lineNumber: 118,
+                                        columnNumber: 33
+                                    }, this))
+                            }, void 0, false, {
+                                fileName: "src/components/WorkerRegister.jsx",
+                                lineNumber: 116,
+                                columnNumber: 25
+                            }, this) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {}, void 0, false),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
                                 className: "mb-3",
                                 children: [
@@ -29420,7 +29521,7 @@ function WorkerRegister() {
                                         children: "Anst\xe4llningstyp"
                                     }, void 0, false, {
                                         fileName: "src/components/WorkerRegister.jsx",
-                                        lineNumber: 74,
+                                        lineNumber: 124,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("select", {
@@ -29433,7 +29534,7 @@ function WorkerRegister() {
                                                 children: "V\xe4lj Anst\xe4llningstyp"
                                             }, void 0, false, {
                                                 fileName: "src/components/WorkerRegister.jsx",
-                                                lineNumber: 76,
+                                                lineNumber: 126,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -29441,7 +29542,7 @@ function WorkerRegister() {
                                                 children: "Tillsvidareanst\xe4llning"
                                             }, void 0, false, {
                                                 fileName: "src/components/WorkerRegister.jsx",
-                                                lineNumber: 77,
+                                                lineNumber: 127,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -29449,7 +29550,7 @@ function WorkerRegister() {
                                                 children: "Visstidsanst\xe4llning"
                                             }, void 0, false, {
                                                 fileName: "src/components/WorkerRegister.jsx",
-                                                lineNumber: 78,
+                                                lineNumber: 128,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -29457,7 +29558,7 @@ function WorkerRegister() {
                                                 children: "Provanst\xe4llning"
                                             }, void 0, false, {
                                                 fileName: "src/components/WorkerRegister.jsx",
-                                                lineNumber: 79,
+                                                lineNumber: 129,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -29465,7 +29566,7 @@ function WorkerRegister() {
                                                 children: "Konsult"
                                             }, void 0, false, {
                                                 fileName: "src/components/WorkerRegister.jsx",
-                                                lineNumber: 80,
+                                                lineNumber: 130,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -29473,19 +29574,19 @@ function WorkerRegister() {
                                                 children: "Timanst\xe4llning"
                                             }, void 0, false, {
                                                 fileName: "src/components/WorkerRegister.jsx",
-                                                lineNumber: 81,
+                                                lineNumber: 131,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "src/components/WorkerRegister.jsx",
-                                        lineNumber: 75,
+                                        lineNumber: 125,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/WorkerRegister.jsx",
-                                lineNumber: 73,
+                                lineNumber: 123,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -29497,7 +29598,7 @@ function WorkerRegister() {
                                         children: "Registrera"
                                     }, void 0, false, {
                                         fileName: "src/components/WorkerRegister.jsx",
-                                        lineNumber: 86,
+                                        lineNumber: 136,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
@@ -29506,35 +29607,35 @@ function WorkerRegister() {
                                         children: "Avbryt"
                                     }, void 0, false, {
                                         fileName: "src/components/WorkerRegister.jsx",
-                                        lineNumber: 87,
+                                        lineNumber: 137,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/WorkerRegister.jsx",
-                                lineNumber: 85,
+                                lineNumber: 135,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "src/components/WorkerRegister.jsx",
-                        lineNumber: 57,
+                        lineNumber: 99,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "src/components/WorkerRegister.jsx",
-                lineNumber: 55,
+                lineNumber: 97,
                 columnNumber: 13
             }, this)
         }, void 0, false, {
             fileName: "src/components/WorkerRegister.jsx",
-            lineNumber: 54,
+            lineNumber: 96,
             columnNumber: 9
         }, this)
     }, void 0, false);
 }
-_s(WorkerRegister, "kvzUEMRyIQE7ys5Qsq/OlBhAAOI=", false, function() {
+_s(WorkerRegister, "KiBdusJ1tPYuGTK6UrlmGs1gBKM=", false, function() {
     return [
         (0, _reactRouterDom.useNavigate)
     ];
@@ -29549,6 +29650,148 @@ $RefreshReg$(_c, "WorkerRegister");
   window.$RefreshReg$ = prevRefreshReg;
   window.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"iTorj","react":"21dqq","../App":"e9Zfo","react-router-dom":"9xmpe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru"}]},["aQL8O","1Fqy1","gLLPy"], "gLLPy", "parcelRequire94c2")
+},{"react/jsx-dev-runtime":"iTorj","react":"21dqq","../App":"e9Zfo","react-router-dom":"9xmpe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru"}],"f6fIj":[function(require,module,exports,__globalThis) {
+var $parcel$ReactRefreshHelpers$2637 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
+var prevRefreshReg = window.$RefreshReg$;
+var prevRefreshSig = window.$RefreshSig$;
+$parcel$ReactRefreshHelpers$2637.prelude(module);
+
+try {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _jsxDevRuntime = require("react/jsx-dev-runtime");
+var _react = require("react");
+var _reactDefault = parcelHelpers.interopDefault(_react);
+var _app = require("../App");
+var _reactRouterDom = require("react-router-dom");
+var _s = $RefreshSig$();
+function WorkerHome() {
+    _s();
+    const { isAuth, userId, userRole, userName } = (0, _react.useContext)((0, _app.AuthContext));
+    const navigate = (0, _reactRouterDom.useNavigate)();
+    async function logout() {
+        try {
+            let res = await fetch('http://localhost/mini-axami/public/api/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!res.ok) console.log('fetch failed');
+            let jsonRes = await res.json();
+            if (jsonRes.success) {
+                console.log(jsonRes.success);
+                navigate('/');
+            } else console.log(jsonRes.error);
+        } catch (error) {
+            console.log('Triggered catch', error);
+        }
+    }
+    return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
+        children: isAuth ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
+            children: [
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h1", {
+                    className: "text-center text-primary",
+                    children: "V\xe4lkommen WORKER till Mini axami Underh\xe5llssystem"
+                }, void 0, false, {
+                    fileName: "src/components/WorkerHome.jsx",
+                    lineNumber: 41,
+                    columnNumber: 13
+                }, this),
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h3", {
+                    children: [
+                        "Your name is ",
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("strong", {
+                            children: userName
+                        }, void 0, false, {
+                            fileName: "src/components/WorkerHome.jsx",
+                            lineNumber: 42,
+                            columnNumber: 30
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "src/components/WorkerHome.jsx",
+                    lineNumber: 42,
+                    columnNumber: 13
+                }, this),
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h3", {
+                    children: [
+                        "Your id is ",
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("strong", {
+                            children: userId
+                        }, void 0, false, {
+                            fileName: "src/components/WorkerHome.jsx",
+                            lineNumber: 43,
+                            columnNumber: 28
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "src/components/WorkerHome.jsx",
+                    lineNumber: 43,
+                    columnNumber: 13
+                }, this),
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h3", {
+                    children: [
+                        "Your role is ",
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("strong", {
+                            children: userRole
+                        }, void 0, false, {
+                            fileName: "src/components/WorkerHome.jsx",
+                            lineNumber: 44,
+                            columnNumber: 30
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "src/components/WorkerHome.jsx",
+                    lineNumber: 44,
+                    columnNumber: 13
+                }, this),
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Link), {
+                    className: "btn btn-success",
+                    to: "##",
+                    children: "Tilldelade uppgifter"
+                }, void 0, false, {
+                    fileName: "src/components/WorkerHome.jsx",
+                    lineNumber: 46,
+                    columnNumber: 13
+                }, this),
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Link), {
+                    className: "btn btn-danger",
+                    to: "/unitShow",
+                    children: "Visa Units"
+                }, void 0, false, {
+                    fileName: "src/components/WorkerHome.jsx",
+                    lineNumber: 47,
+                    columnNumber: 13
+                }, this),
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                    onClick: logout,
+                    className: "btn bg-danger text-light",
+                    children: "Logout"
+                }, void 0, false, {
+                    fileName: "src/components/WorkerHome.jsx",
+                    lineNumber: 48,
+                    columnNumber: 13
+                }, this)
+            ]
+        }, void 0, true) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {}, void 0, false)
+    }, void 0, false);
+}
+_s(WorkerHome, "S5yVI44lloSQMtn+J10sbziERrc=", false, function() {
+    return [
+        (0, _reactRouterDom.useNavigate)
+    ];
+});
+_c = WorkerHome;
+exports.default = WorkerHome;
+var _c;
+$RefreshReg$(_c, "WorkerHome");
+
+  $parcel$ReactRefreshHelpers$2637.postlude(module);
+} finally {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+},{"react/jsx-dev-runtime":"iTorj","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru","react":"21dqq","../App":"e9Zfo","react-router-dom":"9xmpe"}]},["aQL8O","1Fqy1","gLLPy"], "gLLPy", "parcelRequire94c2")
 
 //# sourceMappingURL=index.4d6bcbeb.js.map

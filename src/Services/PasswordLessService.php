@@ -19,10 +19,10 @@ class PasswordLessService{
     }
 
     public function PasswordLess($email){
-        $longPass = uniqid();
+      /*   $longPass = uniqid(); */
         $finalPassword = "";
-        for($i = 0; $i < 8; $i++){
-            $finalPassword = $longPass[$i] . $finalPassword;
+        for($i = 0; $i < 5; $i++){
+            $finalPassword = random_int(1, 9) . $finalPassword;
         }
 
         $mailFunc = new EmailService();

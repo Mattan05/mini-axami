@@ -38,6 +38,8 @@ function ValidatePassword() {
             if (!response.ok) {
                 throw new Error(serverRes.error || "Inloggning misslyckades. Försök igen.");
             }
+            console.log(serverRes.success);
+            console.log(serverRes);
             if (serverRes.success) {
                 console.log('Login Successful');
                 setLoading(false);
@@ -46,7 +48,11 @@ function ValidatePassword() {
                 setUserRole(serverRes['success']['role']);
                 setIsAuth(true);
 /* RETUNERA FRÅN SERVERN HELA USERN. SÅ MAN FÅR ACTIVE_USER STATE */
+                if(loginType === 'worker'){
+                    return navigate('/workerHome');
+                }else if(loginType === 'customer'){
                     return navigate("/home");
+                }
             } else {
                 console.log("Something went wrong");
                 setIsAuth(false);
@@ -63,7 +69,11 @@ function ValidatePassword() {
 
     function handleCancel(){
         console.log("Canceled");
-        return navigate('/customerLogin');
+        if(loginType === 'worker'){
+            return navigate('/workerLogin');
+        }else if(loginType === 'customer'){
+            return navigate('/customerLogin');
+        }
     }
     return ( <>
         <div className="container d-flex justify-content-center align-items-center min-vh-100">

@@ -202,7 +202,7 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/customer/{id}', name: 'customer_get', methods:['GET'])]
-public function getUnit(int $id, Request $request, CustomersRepository $customersRepository): JsonResponse {
+public function getCustomer(int $id, Request $request, CustomersRepository $customersRepository): JsonResponse {
     $customer = $customersRepository->findOneBy(['id' => $id]);
 
     if (!$customer) {
@@ -221,6 +221,25 @@ public function getUnit(int $id, Request $request, CustomersRepository $customer
 
     return new JsonResponse(['success' => $customerArr]);
 }
+
+    #[Route('/getAllCompanies', name:'companies_get', methods:['GET'])]
+    public function getAllCompanies(CustomersRepository $customersRepository): JsonResponse{
+        $companies = $customersRepository->findOneBy(['customerType' => 'company']);
+        if(!$companies){
+            return new JsonResponse(['error' => 'No companies found.'], 404);
+        }
+
+        $customerArr = [
+            'name' => $companies->getName(),
+            'email' => $companies->getCustomerEmail(),
+            'identificationNumber' => $companies->getIdentificationNumber(),
+            'roles' => $companies->getRoles(),
+            'id' => $companies->getId(),
+            'customerType' => $companies->getCustomerType(),
+        ];
+    
+        return new JsonResponse(['success' => $customerArr]);
+    }
 
 
 

@@ -16,6 +16,7 @@ import UnitPage from './components/UnitPage';
 import UnitUpdate from './components/UnitUpdate';
 import WorkerLogin from './components/WorkerLogin';
 import WorkerRegister from './components/WorkerRegister';
+import WorkerHome from './components/WorkerHome';
 
 export const LoadingContext = createContext();
 export const AuthContext = createContext();
@@ -27,7 +28,7 @@ function App() {
     const [data, setData] = useState(null);
     const [error, setError] = useState(null);
     const [userId, setUserId] = useState(null);
-    const [userRole, setUserRole] = useState(null);
+    const [userRole, setUserRole] = useState([]);
     const [userName, setUserName] = useState(null);
 
     useEffect(() => {
@@ -71,7 +72,7 @@ function App() {
    /api/auth retunerar den att jag är inloggad. fel på isauth någonstans. checksessionstatus eller login  */
 
    function PrivateRoute({ isAuth }) {
-    return isAuth ? <Outlet /> : <Navigate to="/customerLogin" replace />;
+    return isAuth ? <Outlet /> : <Navigate to="/" replace />;
 }
 
     return (
@@ -91,6 +92,14 @@ function App() {
                     ) : */ (
                        
                      /*    <GuestHome />, */
+
+
+
+                     /* JAG BEHÖVER TÄNKA HUR JAG VILL GÖRA MED SESSIONS NÄR DET KOMMER TILL USERS OCKSÅ. HÅLLA KOLL MELLAN WORKER OCH CUSTOMER HUR VAD HMM
+                        SEN ÄVEN FUNKAR INTE PASSWORD VERFICATION FÖR WORKER PÅGRUND AV VAD JAG TROR ATT SESSIONEN KRÅNGLAR PRECIS INNAN OCH I SERVER API ROUTE SÅ ANVÄNDER
+                        DEN SESSIONEN FÖR ATT HÄMTA PASSWORDET. DET TROR JAG ÄR FÖR ATT PASSWORDVALIDATION INTE ÄR UNDER PRIVATE OCH OM MAN ÄR INLOGGAD SOM FÖRETAG SÅ BLIR DET 
+                        KONSTIGT
+                     */
                      
                         <Routes>
                             <Route path="/" element={<GuestHome  />} />
@@ -111,6 +120,7 @@ function App() {
                                 <Route path="/unitShow" element={<ShowUnits />} />
                                 <Route path="/unit/:id" element={<UnitPage />} />
                                 <Route path="/unit/update/:id" element={<UnitUpdate />} />
+                                <Route path="/workerHome" element={<WorkerHome />} />
                             </Route>
                         </Routes>
                             

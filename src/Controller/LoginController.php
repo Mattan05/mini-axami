@@ -130,56 +130,68 @@ final class LoginController extends AbstractController
                 return new JsonResponse(['success'=>'Email with one-time password sent']);
     }
 
-    #[Route('/passwordLess', name: 'password_validation', methods:['POST'])]
+    #[Route('/passwordLess', name: 'password_validation')]/* , methods:['POST'] */
     public function PasswordValidation(Request $request, WorkersRepository $workersRepository, CustomersRepository $customerRepository, SessionInterface $session): JsonResponse
     {
-        $data = json_decode($request->getContent(), true);
-        /* ATT GÖRA: I data skicka med ett fält för om det är customer eller worker och därefter använd antingen customerrespos eller workerrepos 
-        Då behöver jag också påverka så att fetchen blir rätt beroende på worker eller customer. krver lite tid får göra senare.
-        Kan också bara göra en service för passwordvalidation eller funktion som jag lägger in i PasswordlessService.php!!!!! 
-        Då kan jag bara skicka med flagga för antingen worker eller customer. det lär fungera sen får ajg lösa frontend senare!
-        dvs ta denna koden här och lägg in i en service
-        */
+        try{
+            $data = json_decode($request->getContent(), true);
+            /* ATT GÖRA: I data skicka med ett fält för om det är customer eller worker och därefter använd antingen customerrespos eller workerrepos 
+            Då behöver jag också påverka så att fetchen blir rätt beroende på worker eller customer. krver lite tid får göra senare.
+            Kan också bara göra en service för passwordvalidation eller funktion som jag lägger in i PasswordlessService.php!!!!! 
+            Då kan jag bara skicka med flagga för antingen worker eller customer. det lär fungera sen får ajg lösa frontend senare!
+            dvs ta denna koden här och lägg in i en service
+            */
 
-        if(!isset($data['password'], $data['account_type'])){ 
-            return new JsonResponse(['error' => 'Missing required fields']);
-        }
-
-        $hashedPassword = "";
-        $account_email = '';
-        $hashedPassword = $session->get("realPassword");
-        $account_email = $session->get('email');
-        /* FÅR BARA DETTA I SESSIONS IBLAND */
-
-       /*  return new JsonResponse(['error'=>'customerEmail: ' . $customerEmail . " " . 'hashedPassword: ' . $hashedPassword]); */
-
-        if(!password_verify($data['password'], $hashedPassword)){
-            return new JsonResponse(['error'=>'Password is incorrect']);
-        }
-        if($data['account_type'] === 'worker') {
-            $worker = $workersRepository->findOneBy(['worker_email'=>$account_email]);
-
-            if(!isset($worker)){
-                return new JsonResponse(['error'=>'Worker could not be found..']);
+            if(!isset($data['password'], $data['account_type'])){ 
+                return new JsonResponse(['error' => 'Missing required fields']);
             }
-            $session->invalidate();
-            $session->set( 'worker_id', $worker->getId());
-            $session->set("user_id", $worker->getId());/* DETTA SKA SEN OCKSÅ VARA WORKERS...? */
-            $session->set("role", $worker->getRoles());
-            $session->set("name", $worker->getName());
-            return new JsonResponse(["success"=>['user_id'=>$worker->getId(), 'role'=>$worker->getRoles(), 'name'=>$worker->getName()] ]);
-        }else{
-            $customer = $customerRepository->findOneBy(['customer_email'=>$account_email]);
-  
-            if(!isset($customer)){
-                return new JsonResponse(['error'=>'Customer could not be found..']);
+
+            $hashedPassword = "";
+            $account_email = '';
+            $hashedPassword = $session->get("realPassword");
+            $account_email = $session->get('email');
+
+            /* FÅR BARA DETTA I SESSIONS IBLAND */
+
+        /*  return new JsonResponse(['error'=>'customerEmail: ' . $customerEmail . " " . 'hashedPassword: ' . $hashedPassword]); */
+
+            if(!password_verify($data['password'], $hashedPassword)){
+                return new JsonResponse(['error'=>'Password is incorrect']);
             }
-            $session->invalidate();
-            $session->set('customer_id', $customer->getId());
-            $session->set("user_id", $customer->getId());
-            $session->set("role", $customer->getRoles());
-            $session->set("name", $customer->getName());
-            return new JsonResponse(["success"=>['user_id'=>$customer->getId(), 'role'=>$customer->getRoles(), 'name'=>$customer->getName()] ]);
+
+            if($data['account_type'] === 'worker') {
+                $worker = $workersRepository->findOneBy(['worker_email'=>$account_email]);
+                
+                if(!isset($worker)){
+                    return new JsonResponse(['error'=>'Worker could not be found..']);
+                }
+                
+                $session->invalidate();
+
+            /*   $session->set( 'worker_id', $worker->getId()); */
+                $session->set("user_id", $worker->getId());
+                $session->set("role", $worker->getRoles());
+                $session->set("name", $worker->getFullName());
+
+
+                return new JsonResponse(["success"=>['user_id'=>$session->get('user_id'), 'role'=>$session->get('role'), 'name'=>$session->get('name')]]);/* ['user_id'=>$worker->getId(), 'role'=>$worker->getRoles(), 'name'=>$worker->getName()] */
+            }else if($data['account_type'] === 'customer'){
+                $customer = $customerRepository->findOneBy(['customer_email'=>$account_email]);
+    
+                if(!isset($customer)){
+                    return new JsonResponse(['error'=>'Customer could not be found..']);
+                }
+                $session->invalidate();
+                $session->set('customer_id', $customer->getId());
+                $session->set("user_id", $customer->getId());
+                $session->set("role", $customer->getRoles());
+                $session->set("name", $customer->getName());
+                return new JsonResponse(["success"=>['user_id'=>$customer->getId(), 'role'=>$customer->getRoles(), 'name'=>$customer->getName()] ]);
+            }else{
+                return new JsonResponse(['error'=>'Not a valid user type']);
+            }
+        }catch(\Exception $e){
+            return new JsonResponse(['error'=>'Catch triggered: ' . $e]);
         }
 
         
@@ -187,10 +199,5 @@ final class LoginController extends AbstractController
         /* ha en timer som efter ett visst tag behöver man skicka om. 30 sekunder */
     }
 
-    #[Route('/logout', name: 'customer_logout', methods:['POST'])]
-    public function CustomerLogout(Request $request, SessionInterface $session): JsonResponse
-    {
-        $session->invalidate();
-        return new JsonResponse(['success'=>'Customer Logged out successfully']);
-    }
+    
 }

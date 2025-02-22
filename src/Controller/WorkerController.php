@@ -2,9 +2,11 @@
 
 namespace App\Controller;
 
+use App\Repository\CustomersRepository;
 use App\Repository\WorkersRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,26 +15,28 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Services\PasswordLessService;
 
 #[Route('/api')]
-final class WorkerController extends AbstractController
+class WorkerController extends AbstractController
 {
     #[Route('/registerWorker', name: 'register_worker')]
-    public function registerWorker(Request $request, SessionInterface $session, WorkersRepository $workersRepository, EntityManagerInterface $entityManager): JsonResponse
+    public function registerWorker(Request $request, SessionInterface $session, WorkersRepository $workersRepository, EntityManagerInterface $entityManager,CustomersRepository $customersRepository): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
 
-        $company_id = $session->get('customer_id');
+       /*  $company_id = $session->get('customer_id');
 
-        if(!$company_id) return new JsonResponse(['error'=>'Company id not found ']);
+        if(!$company_id) return new JsonResponse(['error'=>'Company id not found ']); */
 
-        if(!isset($data['worker_name'], $data['worker_tel'], $data['worker_email'], $data['employment_type'])) {
+        if(!isset($data['worker_name'], $data['worker_tel'], $data['worker_email'], $data['employment_type'], $data['workerCompany'])) {
             return new JsonResponse(['error' => 'Missing required fields']);
         }
+      
 
         if(!ctype_digit($data['worker_tel'])){ /* FÅR KANSKE ÄNDRA SEN +46 ETC " libphonenumber" biblotek */
             return new JsonResponse(['error' => 'Phonenumber must only contain digits']);
         }
 
         $existingWorker = $workersRepository->findOneBy(['worker_email'=>$data['worker_email']]);
+        $companyObj = $customersRepository->findOneBy(['id'=>$data['workerCompany']]);
 
         if($existingWorker) return new JsonResponse(['error'=>'This worker is already registered on your company']);
 
@@ -42,7 +46,7 @@ final class WorkerController extends AbstractController
         $worker->setPhoneNumber($data['worker_tel']);
         $worker->setRoles(['ROLE_WORKER']);
         $worker->setWorkerEmail($data['worker_email']);
-        $worker->addCompanyId($company_id);
+        $worker->addCompanyId( $companyObj);
 
         if(!isset($worker)) return new JsonResponse(['error'=>'Error during worker registration']);
 
