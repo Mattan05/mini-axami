@@ -8,7 +8,6 @@ function GuestHome () {
                 <Link className="btn btn-danger" to="/customerLogin">Logga in customer</Link>
                 <Link className="btn btn-success" to="/activation">Aktivera licens</Link>
                 <hr />
-                <Link className="btn btn-primary" to="/workerRegister">Registrera en worker</Link>
                 <Link className="btn btn-danger" to="/workerLogin">Logga in worker</Link>
                 
                

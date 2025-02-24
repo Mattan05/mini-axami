@@ -9,6 +9,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use App\Enum\UnitTaskStatus;
 use App\Enum\UnitTaskCategory;
+use App\Entity\Customers;
 
 #[ORM\Entity(repositoryClass: UnitTasksRepository::class)]
 class UnitTasks
@@ -21,8 +22,13 @@ class UnitTasks
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $timestamp = null;
 
-    #[ORM\ManyToOne(inversedBy: 'unitTasks')]
-    private ?Workers $created_by = null;
+    #[ORM\ManyToOne(targetEntity: Workers::class, inversedBy: 'unitTasks')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Workers $createdByWorker = null;
+
+    #[ORM\ManyToOne(targetEntity: Customers::class, inversedBy: 'unitTasks')]
+    #[ORM\JoinColumn(nullable: true)]
+    private ?Customers $createdByCustomer = null;
 
     #[ORM\Column(enumType: UnitTaskStatus::class)]
     private ?UnitTaskStatus $status = null;
@@ -45,11 +51,12 @@ class UnitTasks
     private ?string $task_title = null;
 
     /**
-     * @var Collection<int, Workers>
+     * @var Collection<int, Workers>|null
      */
     #[ORM\ManyToMany(targetEntity: Workers::class, inversedBy: 'assigned_unitTasks')]
     #[ORM\JoinTable(name: 'assigned_unit_tasks_workers')]
-    private Collection $assigned_worker;
+    private ?Collection $assigned_worker = null;
+
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $notes = null;
@@ -85,7 +92,7 @@ class UnitTasks
         return $this;
     }
 
-    public function getCreatedBy(): ?Workers
+    /* public function getCreatedBy(): ?Workers
     {
         return $this->created_by;
     }
@@ -93,6 +100,25 @@ class UnitTasks
     public function setCreatedBy(?Workers $created_by): static
     {
         $this->created_by = $created_by;
+
+        return $this;
+    } */
+
+    public function getCreatedBy(): ?object
+    {
+        return $this->createdByWorker ?? $this->createdByCustomer;
+        //coalescing operator - "??" retunerar det första som inte är null
+    }
+
+    public function setCreatedBy(?object $creator): static
+    {
+        if ($creator instanceof Workers) {
+            $this->createdByWorker = $creator;
+            $this->createdByCustomer = null;
+        } elseif ($creator instanceof Customers) {
+            $this->createdByCustomer = $creator;
+            $this->createdByWorker = null; 
+        }
 
         return $this;
     }
@@ -181,10 +207,12 @@ class UnitTasks
     {
         if (!$this->assigned_worker->contains($assignedWorker)) {
             $this->assigned_worker->add($assignedWorker);
+            $assignedWorker->addAssignedUnitTask($this); // Om du också vill lägga till den här uppgiften till arbetaren
         }
 
         return $this;
     }
+    
 
     public function removeAssignedWorker(Workers $assignedWorker): static
     {
@@ -213,7 +241,7 @@ class UnitTasks
         return $this->solved_by;
     }
 
-    public function addSolvedBy(Workers $solvedBy): static
+    public function addSolvedBy(Workers $solvedBy): static/* MÅSTE ÄNDRA DENNA OCH addWorker */
     {
         if (!$this->solved_by->contains($solvedBy)) {
             $this->solved_by->add($solvedBy);

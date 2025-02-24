@@ -104,7 +104,6 @@ function App() {
                         <Routes>
                             <Route path="/" element={<GuestHome  />} />
                             <Route path="/register" element={<Registration />} />
-                            <Route path="/workerRegister" element={<WorkerRegister />} />
                             <Route path="/activation" element={<LicenseActivation />} />
                            {/*  <Route path="/home" element={<Home />} /> */}
                             <Route path="/customerLogin" element={<Login />} />
@@ -121,6 +120,7 @@ function App() {
                                 <Route path="/unit/:id" element={<UnitPage />} />
                                 <Route path="/unit/update/:id" element={<UnitUpdate />} />
                                 <Route path="/workerHome" element={<WorkerHome />} />
+                                <Route path="/workerRegister" element={<WorkerRegister />} />
                             </Route>
                         </Routes>
                             

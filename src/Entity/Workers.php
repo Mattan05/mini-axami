@@ -201,13 +201,20 @@ class Workers
         return $this->unitTasks;
     }
 
-    public function addUnitTask(UnitTasks $unitTask): static
+    public function addUnitTask(UnitTasks $unitTask, $user_type): static
     {
-        if (!$this->unitTasks->contains($unitTask)) {
-            $this->unitTasks->add($unitTask);
-            $unitTask->setCreatedBy($this);
+        if($user_type === 'customer'){
+            if (!$this->unitTasks->contains($unitTask)) {
+                $this->unitTasks->add($unitTask);
+                $unitTask->setCreatedBy($this);
+            }
+        }else if($user_type === 'worker'){
+            if (!$this->unitTasks->contains($unitTask)) {
+                $this->unitTasks->add($unitTask);
+                $unitTask->setCreatedBy($this);
+            }
         }
-
+            
         return $this;
     }
 
@@ -216,7 +223,7 @@ class Workers
         if ($this->unitTasks->removeElement($unitTask)) {
             // set the owning side to null (unless already changed)
             if ($unitTask->getCreatedBy() === $this) {
-                $unitTask->setCreatedBy(null);
+                $unitTask->setCreatedBy(null);/* ÄNDRA TILL CREATEDBYWORKER ELLER CUSTOMER */
             }
         }
 

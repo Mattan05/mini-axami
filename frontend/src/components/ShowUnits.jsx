@@ -13,7 +13,7 @@ function ShowUnits() {
       async function loadUnits() {
        /*  setLoading(true); */
         try {
-          const res = await fetch('http://localhost/mini-axami/public/api/showUnits');
+          const res = await fetch('http://localhost/mini-axami/public/api/getAllCompanyUnits');
           const data = await res.json();
 
           if (!res.ok) {

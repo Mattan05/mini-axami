@@ -59,18 +59,22 @@ class UnitController extends AbstractController
         return new JsonResponse(['success'=>'Unit created']);
     }
 
-    #[Route('/showUnits', name: 'unit_show', methods:['GET'])]
-    public function showUnits(Request $request, SessionInterface $session, UnitsRepository $unitsRepository, CustomersRepository $customersRepository): JsonResponse{/* FELSÖK */
+    #[Route('/getAllCompanyUnits', name: 'unit_show', methods:['GET'])]
+    public function getAllCompanyUnits(Request $request, SessionInterface $session, UnitsRepository $unitsRepository, CustomersRepository $customersRepository): JsonResponse{/* FELSÖK */
         try{
 
                 // Hämta units med customer_id = 92
                 $id = $session->get('customer_id');
                 $customer = $customersRepository->findOneBy(['id'=>$id]);
 
+                if (!isset($customer)) {
+                    return new JsonResponse(['error' => 'No customer found for company ' . $id]);
+                }
+
                 $units = $unitsRepository->findBy(['customer_id' => $customer->getId()]);
 
                 if (empty($units)) {
-                    return new JsonResponse(['error' => 'No units found for customer_id 92']);
+                    return new JsonResponse(['error' => 'No units found']);
                 }
 
               $unitsArray = array_map(function($unit) {

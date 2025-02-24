@@ -52,6 +52,8 @@ function Home() {
         <Link className="btn btn-danger" to="/unitCreate">Skapa Unit</Link>
         <Link className="btn btn-danger" to="/unitShow">Visa Units</Link>
         <button onClick={logout} className='btn bg-danger text-light'>Logout</button>
+        <hr />
+        <Link className="btn btn-primary" to="/workerRegister">Registrera en worker</Link>
     </>
     :
        <></>

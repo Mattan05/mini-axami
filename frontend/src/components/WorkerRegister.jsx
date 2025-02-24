@@ -1,18 +1,29 @@
 import React, {useContext, useEffect, useState} from 'react';
 import { LoadingContext } from '../App';
 import { useNavigate } from "react-router-dom";
+import Select from 'react-select';
+import makeAnimated from 'react-select/animated';
 
 function WorkerRegister() {
+    const animatedComponents = makeAnimated();
     let navigate = useNavigate();
     const {setLoading} = useContext(LoadingContext);
-    const [allCompanies, setAllCompanies] = useState([]);
+    /* const [allCompanies, setAllCompanies] = useState([]); */
+    const [allUnits, setAllUnits] = useState([]);
+    const [selectedUnits, setSelectedUnits] = useState([]);
+
+
+   /*  useEffect(()=>{
+        getAllCompanies();
+    },[]); */
 
     useEffect(()=>{
-        getAllCompanies();
+        getAllUnits();
     },[]);
 
     async function handleRegistration(event) {
         event.preventDefault();
+/* workerUnits: selectedUnits.map(unit => unit.value) */
         setLoading(true);
         /*   setErrorMessage(null);  */
 
@@ -21,9 +32,9 @@ function WorkerRegister() {
             worker_tel: event.target.worker_tel.value,
             worker_email: event.target.worker_email.value,
             employment_type: event.target.employment_type.value,
-            workerCompany: event.target.companyChoice.value,
+            workerUnits: selectedUnits.map(unit => unit.value), //En array med id retuneras
         });
-
+       
          console.log(body);
 
         try {
@@ -55,8 +66,8 @@ function WorkerRegister() {
         }
     }
 
-    async function getAllCompanies(){
-       /*  setLoading(true); */
+    /* async function getAllCompanies(){
+
         try{
             let response = await fetch('http://localhost/mini-axami/public/api/getAllCompanies',{
                 method:'GET',
@@ -70,29 +81,50 @@ function WorkerRegister() {
 
             console.log(serverRes['success']);
             if (serverRes['success']){
-              if (Array.isArray(serverRes['success'])) { /* HITTA BÄTTRE LÖSNING FÖR ATT  FIXA SÅ ATT MAP FUNGERAR. RETUNERAR EJ ARRAY*/
+              if (Array.isArray(serverRes['success'])) { 
                 setAllCompanies(serverRes['success']);
             } else if (serverRes['success'] && typeof serverRes['success'] === 'object') {
-                setAllCompanies([serverRes['success']]); // Gör om till en array om det är ett objekt
+                setAllCompanies([serverRes['success']]); 
             }
             } else {
                 console.log(serverRes.error || "Server Error occurred...");
             }
         }catch (error) {
             console.error("Fel vid hämtning av företag:", error);
-            /*  setErrorMessage(error.message); */
-        }/* finally{
-            setLoading(false);
-        } */
-    }
+           
+        }
+    } */
 
+        async function getAllUnits(){ /* I SERVERN HÄMTA FRÅN SESSION VILKET FÖRETAG. HÄMTA UNITS FÖR FÖRETAGET ENBART */
+            try{
+                let response = await fetch('http://localhost/mini-axami/public/api/getAllCompanyUnits',{
+                    method:'GET',
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                let serverRes = await response.json();
+    
+                if(!response.ok){
+                    console.log(serverRes.error || "Hämtning av units misslyckades. Försök igen.");
+                }
+    
+                console.log(serverRes['success']);
+                if (serverRes['success']){
+                  setAllUnits(serverRes.success);
+                } else {
+                    console.log(serverRes.error || "Server Error occurred...");
+                }
+            }catch (error) {
+                console.error("Fel vid hämtning av Units:", error);
+               
+            }
+        }
     function handleCancel(){
         console.log("Canceled");
         return navigate('/workerRegister');
     }
 
     return ( <>
-    {/* <h3 className='text-light'>{JSON.stringify(allCompanies)}</h3> */}
+  {/*   <h3 className='text-light'>{JSON.stringify(allUnits)}</h3> */}
         <div className="container d-flex justify-content-center align-items-center min-vh-100">
             <div className="card shadow-lg p-4" style={{ width: "400px", borderRadius: "12px" }}>
                 <h3 className="text-center mb-4">Registrera Worker</h3>
@@ -112,14 +144,43 @@ function WorkerRegister() {
                         <input className="form-control" type="tel" name="worker_tel" placeholder="Ex: 0702457432" required /> {/* kan lägga till pattern på tel type */}
                     </div>
 
-                    {allCompanies ? 
+                    {/* {allCompanies ? 
                         <select className="js-example-basic-single" name="companyChoice">
                             {allCompanies.map(company => (
                                 <option key={company.id} value={company.id}>{company.name}</option>
                             ))}
                         </select>
-                    :  <></>}
+                    :  <></>} */}
 
+                  {/*   {allUnits ? 
+                        <select className="js-example-basic-single" name="companyChoice">
+                            {allUnits.map(company => (
+                                <option key={company.id} value={company.id}>{company.name}</option>
+                            ))}
+                        </select>
+                    :  <></>} */}
+
+                    {/* {allUnits ? 
+                        <select className="js-example-basic-multiple" name="unitChoice[]" multiple="multiple">
+                            {allUnits.map(unit => (
+                                <option key={unit.id} value={unit.id}>{unit.name}</option>
+                            ))}
+                        </select>
+                    :  <></>} */}
+
+                    {allUnits ? 
+                        <Select
+                            isMulti
+                            name="unitChoice"
+                            options={allUnits.map(unit => ({ value: unit.id, label: unit.name }))} //Behöver vara key value pair
+                            className="basic-multi-select"
+                            classNamePrefix="Välj Units"
+                            components={animatedComponents} 
+                            value={selectedUnits}
+                            onChange={setSelectedUnits}
+                        />
+                        : <></>
+                    }
                     <div className="mb-3">
                         <label className="form-label">Anställningstyp</label>
                         <select className="form-select" name="employment_type" required>
@@ -141,6 +202,6 @@ function WorkerRegister() {
         </div>
     
     </> );
-}
 
+}
 export default WorkerRegister;

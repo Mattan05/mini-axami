@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\CustomersRepository;
+use App\Repository\UnitsRepository;
 use App\Repository\WorkersRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -18,25 +19,30 @@ use App\Services\PasswordLessService;
 class WorkerController extends AbstractController
 {
     #[Route('/registerWorker', name: 'register_worker')]
-    public function registerWorker(Request $request, SessionInterface $session, WorkersRepository $workersRepository, EntityManagerInterface $entityManager,CustomersRepository $customersRepository): JsonResponse
+    public function registerWorker(Request $request, SessionInterface $session, UnitsRepository $unitsRepository, WorkersRepository $workersRepository, EntityManagerInterface $entityManager,CustomersRepository $customersRepository): JsonResponse
     {
+        /* HAR GLÖMT EN GREJ: ATT I FORMULÄRET SKA MAN KUNNA TILLDELA VISSA UNITS. UNITS ENTITET HAR EN ADDWORKER */
         $data = json_decode($request->getContent(), true);
 
        /*  $company_id = $session->get('customer_id');
 
         if(!$company_id) return new JsonResponse(['error'=>'Company id not found ']); */
 
-        if(!isset($data['worker_name'], $data['worker_tel'], $data['worker_email'], $data['employment_type'], $data['workerCompany'])) {
+        if(!isset($data['worker_name'], $data['worker_tel'], $data['worker_email'], $data['employment_type'], $data['workerUnits'])) {/* , $data['workerCompany'] */
             return new JsonResponse(['error' => 'Missing required fields']);
-        }
-      
+        }/* DETTA KAN VARA FEL */
 
         if(!ctype_digit($data['worker_tel'])){ /* FÅR KANSKE ÄNDRA SEN +46 ETC " libphonenumber" biblotek */
             return new JsonResponse(['error' => 'Phonenumber must only contain digits']);
         }
 
         $existingWorker = $workersRepository->findOneBy(['worker_email'=>$data['worker_email']]);
-        $companyObj = $customersRepository->findOneBy(['id'=>$data['workerCompany']]);
+
+        if($session->get('role') === "ROLE_OWNER" && $session->get('user_id')){
+            $workerCompany = $session->get('user_id');
+        }/* DETTA KAN VARA FEL */
+
+        $companyObj = $customersRepository->findOneBy(['id'=>$workerCompany]); /* $data['workerCompany'] */ /* DETTA KAN VARA FEL */
 
         if($existingWorker) return new JsonResponse(['error'=>'This worker is already registered on your company']);
 
@@ -47,6 +53,11 @@ class WorkerController extends AbstractController
         $worker->setRoles(['ROLE_WORKER']);
         $worker->setWorkerEmail($data['worker_email']);
         $worker->addCompanyId( $companyObj);
+        
+        foreach($data['workerUnits'] as $unitId){ /* DETTA KAN VARA FEL */
+            $unit = $unitsRepository->findOneBy(['id'=>$unitId]);
+            $unit->addWorker($worker);
+        } /* Här läggs works till för units samt i addWorker funktionen samt på workern läggs tilldelade units till */
 
         if(!isset($worker)) return new JsonResponse(['error'=>'Error during worker registration']);
 
