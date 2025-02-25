@@ -90,7 +90,7 @@ class PasswordLessService{
                 $expirationTime = new \DateTime('+1 minutes');
 
                 $this->session->set('realPassword', $hashedPassword);
-                $this->session->set('email', $email);
+                $this->session->set('email', $email); /* VRF INTE ID? */
 
                     return ['success'=>'PasswordService successfully'];
                 

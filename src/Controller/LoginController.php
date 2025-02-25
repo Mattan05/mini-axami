@@ -135,36 +135,35 @@ final class LoginController extends AbstractController
     {
         try{
             $data = json_decode($request->getContent(), true);
-            /* ATT GÖRA: I data skicka med ett fält för om det är customer eller worker och därefter använd antingen customerrespos eller workerrepos 
-            Då behöver jag också påverka så att fetchen blir rätt beroende på worker eller customer. krver lite tid får göra senare.
-            Kan också bara göra en service för passwordvalidation eller funktion som jag lägger in i PasswordlessService.php!!!!! 
-            Då kan jag bara skicka med flagga för antingen worker eller customer. det lär fungera sen får ajg lösa frontend senare!
-            dvs ta denna koden här och lägg in i en service
-            */
 
             if(!isset($data['password'], $data['account_type'])){ 
                 return new JsonResponse(['error' => 'Missing required fields']);
-            }
+            } 
 
             $hashedPassword = "";
             $account_email = '';
             $hashedPassword = $session->get("realPassword");
             $account_email = $session->get('email');
-
+            
             /* FÅR BARA DETTA I SESSIONS IBLAND */
 
         /*  return new JsonResponse(['error'=>'customerEmail: ' . $customerEmail . " " . 'hashedPassword: ' . $hashedPassword]); */
 
             if(!password_verify($data['password'], $hashedPassword)){
                 return new JsonResponse(['error'=>'Password is incorrect']);
-            }
+            } 
 
             if($data['account_type'] === 'worker') {
-                $worker = $workersRepository->findOneBy(['worker_email'=>$account_email]);
+                if(!isset($data['companyId'])) return new JsonResponse(['error'=>'Missing field for company ID']);
                 
-                if(!isset($worker)){
-                    return new JsonResponse(['error'=>'Worker could not be found..']);
-                }
+                $worker = $workersRepository->findOneBy(['worker_email'=>'matber0508@edu.halmstad.se']); /* $account_email */
+                $company = $customerRepository->findOneBy(['id'=>$data['companyId']]);
+
+                if(!$company) return new JsonResponse(['error'=>"Company object not found for the given id"]);
+
+                if (!$worker || !$worker->getCompanyId()->contains($company)) {
+                    return new JsonResponse(['error' => 'Worker not found for the email and company'], 404);
+                } 
                 
                 $session->invalidate();
 
@@ -172,7 +171,7 @@ final class LoginController extends AbstractController
                 $session->set("user_id", $worker->getId());
                 $session->set("role", $worker->getRoles());
                 $session->set("name", $worker->getFullName());
-
+                $session->set('customer_id', $data['companyId']); 
 
                 return new JsonResponse(["success"=>['user_id'=>$session->get('user_id'), 'role'=>$session->get('role'), 'name'=>$session->get('name')]]);/* ['user_id'=>$worker->getId(), 'role'=>$worker->getRoles(), 'name'=>$worker->getName()] */
             }else if($data['account_type'] === 'customer'){

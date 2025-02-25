@@ -66,34 +66,7 @@ function WorkerRegister() {
         }
     }
 
-    /* async function getAllCompanies(){
-
-        try{
-            let response = await fetch('http://localhost/mini-axami/public/api/getAllCompanies',{
-                method:'GET',
-                headers: { 'Content-Type': 'application/json' },
-            });
-            let serverRes = await response.json();
-
-            if(!response.ok){
-                console.log(serverRes.error || "Hämtning av företag misslyckades. Försök igen.");
-            }
-
-            console.log(serverRes['success']);
-            if (serverRes['success']){
-              if (Array.isArray(serverRes['success'])) { 
-                setAllCompanies(serverRes['success']);
-            } else if (serverRes['success'] && typeof serverRes['success'] === 'object') {
-                setAllCompanies([serverRes['success']]); 
-            }
-            } else {
-                console.log(serverRes.error || "Server Error occurred...");
-            }
-        }catch (error) {
-            console.error("Fel vid hämtning av företag:", error);
-           
-        }
-    } */
+    
 
         async function getAllUnits(){ /* I SERVERN HÄMTA FRÅN SESSION VILKET FÖRETAG. HÄMTA UNITS FÖR FÖRETAGET ENBART */
             try{
@@ -167,7 +140,7 @@ function WorkerRegister() {
                             ))}
                         </select>
                     :  <></>} */}
-
+                    <label className="form-label">Arbetarens Units:</label>
                     {allUnits ? 
                         <Select
                             isMulti

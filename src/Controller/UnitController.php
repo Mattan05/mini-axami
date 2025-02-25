@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Repository\CustomersRepository;
 use App\Repository\UnitsRepository;
 use App\Entity\Customers;
+use App\Repository\WorkersRepository;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -62,11 +63,10 @@ class UnitController extends AbstractController
     #[Route('/getAllCompanyUnits', name: 'unit_show', methods:['GET'])]
     public function getAllCompanyUnits(Request $request, SessionInterface $session, UnitsRepository $unitsRepository, CustomersRepository $customersRepository): JsonResponse{/* FELSÖK */
         try{
-
                 // Hämta units med customer_id = 92
                 $id = $session->get('customer_id');
                 $customer = $customersRepository->findOneBy(['id'=>$id]);
-
+                
                 if (!isset($customer)) {
                     return new JsonResponse(['error' => 'No customer found for company ' . $id]);
                 }
@@ -88,6 +88,42 @@ class UnitController extends AbstractController
                         'notes'=>$unit->getNotes(),
                         'unit_id'=>$unit->getId(),
                         /* 'assignedWorker'=>$unit->getAssignedWorker() */
+                    ];
+                }, $units); 
+                
+                return new JsonResponse(['success' => $unitsArray]);
+                         
+        }catch(\Exception $e){
+            return new JsonResponse(['error'=>"error: " . $e->getMessage()]);
+        }
+        
+    }
+
+    #[Route('/getAllCompanyUnits/{id}', name: 'unit_worker_show', methods:['GET'])]
+    public function getAllCompanyWorkerUnits(int $id, Request $request, SessionInterface $session, UnitsRepository $unitsRepository, WorkersRepository $workersRepository): JsonResponse{
+        try{
+                $worker = $workersRepository->findOneBy(['id'=>$id]);
+                if (!isset($worker)) {
+                    return new JsonResponse(['error' => 'No worker found for id ' . $id]);
+                }
+
+                $units = $worker->getUnitIDs()->toArray();
+                
+                if (empty($units)) {
+                    return new JsonResponse(['error' => 'No units found']);
+                }
+
+              $unitsArray = array_map(function($unit) {
+                    return [
+                        'id' => $unit->getId(),
+                        'name' => $unit->getUnitName(),
+                        'description' => $unit->getDescription(),
+                        'customer' => $unit->getCustomerId()->getName(),
+                        'status'=>$unit->getStatus(),
+                        'timestamp'=>$unit->getTimestamp()->format('Y-m-d H:i'),
+                        'notes'=>$unit->getNotes(),
+                        'unit_id'=>$unit->getId(),
+                       
                     ];
                 }, $units); 
                 

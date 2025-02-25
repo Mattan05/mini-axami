@@ -17,6 +17,7 @@ import UnitUpdate from './components/UnitUpdate';
 import WorkerLogin from './components/WorkerLogin';
 import WorkerRegister from './components/WorkerRegister';
 import WorkerHome from './components/WorkerHome';
+import ShowWorkers from './components/showWorkers';
 
 export const LoadingContext = createContext();
 export const AuthContext = createContext();
@@ -121,6 +122,7 @@ function App() {
                                 <Route path="/unit/update/:id" element={<UnitUpdate />} />
                                 <Route path="/workerHome" element={<WorkerHome />} />
                                 <Route path="/workerRegister" element={<WorkerRegister />} />
+                                <Route path="/showWorkers" element={<ShowWorkers />} />
                             </Route>
                         </Routes>
                             

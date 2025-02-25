@@ -47,11 +47,11 @@ class Customers
     #[Assert\NotBlank(message: 'Namn får inte vara tomt.')]
     private ?string $name = null;
 
-    #[ORM\Column(type: "string", length: 255, nullable: true)]
+/*     #[ORM\Column(type: "string", length: 255, nullable: true)]
     private ?string $temp_password = null;
 
     #[ORM\Column(type: "datetime", nullable: true)]
-    private ?\DateTimeInterface $temp_password_expiration = null;
+    private ?\DateTimeInterface $temp_password_expiration = null; */
 
     /**
      * @var Collection<int, Units>

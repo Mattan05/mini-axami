@@ -8,6 +8,7 @@ function ValidatePassword() {
     let navigate = useNavigate();
     let location = useLocation();
     let loginType = location.state?.loginType
+    let workerCompanyId = location.state?.workerCompanyId
     const {setLoading} = useContext(LoadingContext);
     const {setIsAuth, userId, setUserId, userRole, setUserRole, userName, setUserName, checkSessionStatus} = useContext(AuthContext);
 
@@ -16,13 +17,15 @@ function ValidatePassword() {
         event.preventDefault();
         setLoading(true);
         /*   setErrorMessage(null);  */
-
+        console.log("workerCompanyId");
+        console.log(workerCompanyId);
         /* SEN I WORKER LOGIN PÅ CLIENTEN SKA JAG SKICKA MED USELOCATION OCKSÅ DÄR DET SKA STÅ "worker" */
 
 
         let body = JSON.stringify({
             password:event.target.password.value,
-            account_type: loginType
+            account_type: loginType,
+            companyId: workerCompanyId
         });
 
         try {

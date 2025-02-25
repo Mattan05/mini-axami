@@ -24,12 +24,9 @@ use App\Services\EmailService;
 class RegistrationController extends AbstractController
 {
     
-    #[Route('/companyRegistration', name: 'company_registration', methods: ['POST'])]
+    #[Route('/companyRegistration', name: 'company_registration')] /* , methods: ['POST'] */
     public function CompanyRegistration(LicenseKeyService $licenseKeyService, LicensekeysRepository $licensekeysRepository, Request $request, CustomersRepository $customerRepository, EntityManagerInterface $entityManager): JsonResponse
     {
-        /* if (!$session->get('user_id')) {
-            return new JsonResponse(["error" => "Unauthorized access"]);
-        } */
         try{
             $data = json_decode($request->getContent(), true);
         
@@ -47,6 +44,7 @@ class RegistrationController extends AbstractController
 
             $existingCustomer = $customerRepository->findOneBy(['customer_email' => $data['companyEmail']]);
             $existingIdentification =  $customerRepository->findOneBy(['identification_number' => $data['identificationNumber']]);
+
             if ($existingCustomer) {
                 return new JsonResponse(['error' => 'Email is already registered']);
             }
@@ -72,6 +70,29 @@ class RegistrationController extends AbstractController
                 $licenseKey = $licenseKeyService->generateLicense($validUntil, $customer);
             
                 $customer->setLicenseKey($licenseKey); 
+
+
+/*     private ?string $identification_number = null;
+
+    private ?string $customer_email = null;
+
+    private ?Licensekeys $license_key = null;   
+
+    private array $roles = [];
+
+    private ?string $customerType = null;
+
+    private ?bool $license_valid = null;
+
+    private ?string $name = null;
+
+    private ?string $temp_password = null;
+
+    private ?\DateTimeInterface $temp_password_expiration = null;
+
+    private Collection $units;
+
+    private Collection $workers; */
 
                 if(!isset($customer)){
                     return new JsonResponse(["error"=>"Error during customer registration..."]);  
@@ -224,12 +245,14 @@ public function getCustomer(int $id, Request $request, CustomersRepository $cust
 
     #[Route('/getAllCompanies', name:'companies_get', methods:['GET'])]
     public function getAllCompanies(CustomersRepository $customersRepository): JsonResponse{
-        $companies = $customersRepository->findOneBy(['customerType' => 'company']);
+        $companies = $customersRepository->findBy(['customerType' => 'company']);
+
         if(!$companies){
             return new JsonResponse(['error' => 'No companies found.'], 404);
         }
 
-        $customerArr = [
+        $customerArr = array_map(function($companies){
+            return [
             'name' => $companies->getName(),
             'email' => $companies->getCustomerEmail(),
             'identificationNumber' => $companies->getIdentificationNumber(),
@@ -237,11 +260,9 @@ public function getCustomer(int $id, Request $request, CustomersRepository $cust
             'id' => $companies->getId(),
             'customerType' => $companies->getCustomerType(),
         ];
+    },$companies);
     
         return new JsonResponse(['success' => $customerArr]);
     }
-
-
-
    
 }
