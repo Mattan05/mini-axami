@@ -76,6 +76,8 @@ class WorkerController extends AbstractController
     {
         $companyId = $session->get('customer_id');
 
+        if(!$companyId) return new JsonResponse(['error'=>'No Id found']);
+
         $company = $customersRepository->findOneBy(['id'=>$companyId]);
 
         if(!$company) return new JsonResponse(['error'=>'Current company not found']);
@@ -113,7 +115,16 @@ class WorkerController extends AbstractController
         return new JsonResponse(['success'=>$workerArr]);
     }
 
-    #[Route('/updateWorker/{id}', name: 'login_Worker', methods: ['POST'])]
+    #[Route('/getWorker/{id}', name: 'get_workersById', methods:['GET'])]
+    public function getWorkerById(int $id, Request $request, SessionInterface $session, WorkersRepository $workersRepository): JsonResponse{
+        if(!$id) return new JsonResponse(['error'=>'No Id provided']);
+        $worker = $workersRepository->find($id);
+        if(!$worker) return new JsonResponse(['error'=>'No worker found for the provided Id ' . $id]);
+        return new JsonResponse(['success'=>$worker->toArray()]);
+    }
+    
+
+    #[Route('/updateWorker/{id}', name: 'update_worker')]
     public function updateWorker(int $id, Request $request, UnitsRepository $unitsRepository, WorkersRepository $workersRepository, EntityManagerInterface $entityManager): JsonResponse{
         $data = json_decode($request->getContent(), true);
         
@@ -130,32 +141,57 @@ class WorkerController extends AbstractController
             $worker->setPhoneNumber($data['newPhoneNmr']);
         }
         if (isset($data['newEmploymentType'])) {
-            $worker->setEmploymentType($data['newEmploymentType']);  
+            $worker->setEmploymentType($data['newEmploymentType']);
         }
         if (isset($data['newUnitIds'])) {
-            foreach($data['newUnitIds'] as $unitId){
-                $unit = $unitsRepository->findBy(['id' => $unitId]);
-                $worker->addUnitID($unit);
+            // 1. Hämta befintliga enheter och deras ID:n
+            $currentUnits = $worker->getUnitIDs(); 
+            $currentUnitIds = array_map(fn($unit) => $unit->getId(), $currentUnits->toArray());
+        
+            $newUnitIds = $data['newUnitIds'];
+        
+            // 2. Ta bort enheter som inte längre finns i den nya listan
+            foreach ($currentUnits as $unit) {
+                if (!in_array($unit->getId(), $newUnitIds)) {
+                    $worker->removeUnitID($unit);
+                }
+            }
+        
+            // 3. Lägg till enheter som saknas i den nya listan
+            foreach ($newUnitIds as $unitId) {
+                if (!in_array($unitId, $currentUnitIds)) {
+                    $unit = $unitsRepository->find($unitId);
+                    if ($unit) {
+                        $worker->addUnitID($unit);
+                    }
+                }
             }
         }
+        
 
         $entityManager->persist($worker);
         $entityManager->flush();
 
-        return new JsonResponse(['success' => 'Worker updated successfully']);
+        $worker = $worker->toArray();
+
+        return new JsonResponse(['success' => $worker]);
     }
 
-    #[Route('/delete/{id}', name: 'login_Worker', methods: ['POST'])]
+    #[Route('/worker/delete/{id}', name: 'delete_worker', methods: ['POST'])]
     public function deleteWorker(int $id, Request $request, UnitsRepository $unitsRepository, WorkersRepository $workersRepository, EntityManagerInterface $entityManager): JsonResponse{
-        /* AVSKEDA sparka knapp etc->är du säker  på detta... FRÅGA */
+        $deleteWorker = $workersRepository->find($id);
+        if(!$deleteWorker) return new JsonResponse(['error'=>'Worker not found']);
+
+        $entityManager->remove($deleteWorker);
+        $entityManager->flush();
+
         return new JsonResponse(['success' => 'Worker deleted successfully']);
     }
 
     /* ATT GÖRA:
-        *Lös crud för worker
-        *lös så att customer kan se alla workers (read)
         *lös så att workern OCH customer kan update worker (eller kanske bara customer hmm)
         *CRUD FÖR CUSTOMER update, delete, osv osv.
+        *för att fixa params routes react router https://stackoverflow.com/questions/54497966/component-wont-reload-with-new-data-when-route-parameters-change
     */
 
     #[Route('/loginWorker', name: 'login_Worker')]

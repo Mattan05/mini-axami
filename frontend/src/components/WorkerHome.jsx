@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 
 function WorkerHome() {
-    const {isAuth, userId, userRole, userName} = useContext(AuthContext);
+    const {isAuth, setIsAuth, userId, userRole, userName} = useContext(AuthContext);
     const navigate = useNavigate();
 
     async function logout(){
@@ -24,6 +24,7 @@ function WorkerHome() {
     
             if(jsonRes.success){
                 console.log(jsonRes.success);
+                setIsAuth(false);
                 navigate('/');
             }else{
                 console.log(jsonRes.error);

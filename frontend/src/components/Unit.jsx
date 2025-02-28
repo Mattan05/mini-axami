@@ -15,7 +15,7 @@ function Unit({unit}) {
     }
     
     return ( <>
-        <div className="card mb-4" onClick={unitPage}>
+        <div className="card mb-4" style={{cursor:'pointer'}} onClick={unitPage}>
             <div className="card-header bg-dark text-white">
                 <h5>{unit.name}</h5>
             </div>

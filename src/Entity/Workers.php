@@ -283,4 +283,20 @@ class Workers
 
         return $this;
     }
+
+    public function toArray(): array
+{
+    return [
+        'id' => $this->getId(),
+        'name' => $this->getFullName(),
+        'email' => $this->getWorkerEmail(),
+        'phoneNmr' => $this->getPhoneNumber(),
+        'employmentType' => $this->getEmploymentType(),
+        'roles' => $this->getRoles(),
+        'units' => array_map(fn($unit) => [
+            'id' => $unit->getId(),
+            'name' => $unit->getUnitName(),
+        ], $this->getUnitIDs()->toArray()),
+    ];
+}
 }

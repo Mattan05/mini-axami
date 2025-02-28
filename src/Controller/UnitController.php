@@ -156,7 +156,7 @@ public function getUnit(int $id, Request $request, UnitsRepository $unitsReposit
     return new JsonResponse(['success' => $unitArr]);
 }
 
-#[Route('/unit/delete/{id}', name: 'unit_delete', methods:['POST'])] //DELETE
+#[Route('/unit/delete/{id}', name: 'unit_delete')] //DELETE
 public function deleteUnit(int $id, Request $request, UnitsRepository $unitsRepository, EntityManagerInterface $entityManager): JsonResponse {
     if(!$id) return new JsonResponse(['error'=>"No Unit Id Provided"]);
     $unit = $unitsRepository->find($id);
@@ -171,7 +171,7 @@ public function deleteUnit(int $id, Request $request, UnitsRepository $unitsRepo
     return new JsonResponse(['success'=>'Unit Deleted successfully']);
 }
 
-#[Route('/unit/update/{id}', name: 'unit_delete', methods:['PUT'])] 
+#[Route('/unit/update/{id}', name: 'unit_update', methods:['PUT'])] 
 public function updateUnit(int $id, ValidatorInterface $validator,Request $request, UnitsRepository $unitsRepository, EntityManagerInterface $entityManager): JsonResponse {
     if(!$id) return new JsonResponse(['error'=>"No Unit Id Provided"]);
 

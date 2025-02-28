@@ -5,7 +5,7 @@ import { LoadingContext, AuthContext } from '../App';
 import { Link, useNavigate } from 'react-router-dom';
 
 function Home() {
-    const {isAuth, userId, setUserId, userRole, setUserRole, userName, setUserName} = useContext(AuthContext);
+    const {isAuth, userId, setIsAuth, setUserId, userRole, setUserRole, userName, setUserName} = useContext(AuthContext);
     const navigate = useNavigate();
     /* console.log("before");
     console.log(userName); */
@@ -31,6 +31,7 @@ function Home() {
     
             if(jsonRes.success){
                 console.log(jsonRes.success);
+                setIsAuth(false);
                 navigate('/');
             }else{
                 console.log(jsonRes.error);
@@ -41,6 +42,10 @@ function Home() {
             console.log('Triggered catch', error);
         }
     }
+
+    const handleProfilePage = () => {
+        navigate('/customerProfile/'+userId);
+    };
     return ( <>
     {isAuth ? 
     <>
@@ -49,7 +54,8 @@ function Home() {
         <h3>Your id is <strong>{userId}</strong></h3>
         <h3>Your role is <strong>{userRole}</strong></h3>
 
-        <Link className="btn btn-danger" to="/unitCreate">Skapa Unit</Link>
+        <button className="btn btn-info" onClick={handleProfilePage}>ProfilSida</button>
+        <Link className="btn btn-success" to="/unitCreate">Skapa Unit</Link>
         <Link className="btn btn-danger" to="/unitShow">Visa Units</Link>
         <Link className="btn btn-danger" to="/showWorkers">Visa alla Workers</Link>
         <button onClick={logout} className='btn bg-danger text-light'>Logout</button>

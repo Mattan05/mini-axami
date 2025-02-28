@@ -18,6 +18,8 @@ import WorkerLogin from './components/WorkerLogin';
 import WorkerRegister from './components/WorkerRegister';
 import WorkerHome from './components/WorkerHome';
 import ShowWorkers from './components/showWorkers';
+import UpdateWorker from './components/UpdateWorker';
+import CustomerProfile from './components/CustomerProfile';
 
 export const LoadingContext = createContext();
 export const AuthContext = createContext();
@@ -72,15 +74,23 @@ function App() {
    /* PROBLEM 2025-02-10: När jag loggar in och kommer till /home. Om jag skriver i url:en till "/" så kan jag inte gå tillbaka till "/home". Om jag kollar network för
    /api/auth retunerar den att jag är inloggad. fel på isauth någonstans. checksessionstatus eller login  */
 
-   function PrivateRoute({ isAuth }) {
-    return isAuth ? <Outlet /> : <Navigate to="/" replace />;
-}
+    function PrivateRoute({ isAuth }) {
+        return isAuth ? <Outlet /> : <Navigate to="/" replace />;
+    }
+
+    function OwnerRoute({ userRole }) {
+        return userRole.includes('ROLE_OWNER') ? <Outlet /> : <Navigate to="/workerHome" replace />;
+    }
+
+    function WorkerRoute({ userRole }) {
+        return userRole.includes('ROLE_WORKER') ? <Outlet /> : <Navigate to="/home" replace />;
+    }
 
     return (
         
         <Router basename="/mini-axami/public">
             <h1>{JSON.stringify(loading)}</h1>
-            <Header isAuth={isAuth}/>
+            <Header isAuth={isAuth} userRole={userRole}/>
             <main>
                 <LoadingContext.Provider value={{loading, setLoading, error, setError}}>
                 <AuthContext.Provider value={{setIsAuth, isAuth, userId, setUserId, userRole, setUserRole, userName, setUserName}}>
@@ -115,14 +125,22 @@ function App() {
 
                             {/* Skyddade routes */}
                             <Route element={<PrivateRoute isAuth={isAuth} />}>
-                                <Route path="/home" element={<Home />} />
-                                <Route path="/unitCreate" element={<CreateUnit />} />
+                                <Route element={<OwnerRoute userRole={userRole} />}>
+                                    <Route path="/home" element={<Home />} />
+                                    <Route path="/unitCreate" element={<CreateUnit />} />
+                                    <Route path="/unit/update/:id" element={<UnitUpdate />} />
+                                    <Route path="/workerRegister" element={<WorkerRegister />} />
+                                    <Route path="/updateWorker/:id" element={<UpdateWorker />} />
+                                    <Route path="/customerProfile/:id" element={<CustomerProfile />} />
+                                </Route>
+
+                                <Route element={<WorkerRoute userRole={userRole} />}>
+                                    <Route path="/workerHome" element={<WorkerHome />} />
+                                </Route>
+
                                 <Route path="/unitShow" element={<ShowUnits />} />
                                 <Route path="/unit/:id" element={<UnitPage />} />
-                                <Route path="/unit/update/:id" element={<UnitUpdate />} />
-                                <Route path="/workerHome" element={<WorkerHome />} />
-                                <Route path="/workerRegister" element={<WorkerRegister />} />
-                                <Route path="/showWorkers" element={<ShowWorkers />} />
+                                <Route path="/showWorkers" element={<ShowWorkers />} /> {/* WORKERS SKA KUNNA SE SINA MEDARBETARE */}
                             </Route>
                         </Routes>
                             

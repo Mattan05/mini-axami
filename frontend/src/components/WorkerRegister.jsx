@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
 
+
 function WorkerRegister() {
     const animatedComponents = makeAnimated();
     let navigate = useNavigate();
@@ -53,7 +54,7 @@ function WorkerRegister() {
             
             console.log(serverRes);
             if (serverRes['success']) {
-                return navigate("/workerLogin");
+                return navigate("/showWorkers");
             } else {
                 console.log(serverRes.error || "Server Error occurred...");
             }
@@ -158,7 +159,7 @@ function WorkerRegister() {
                         <label className="form-label">Anställningstyp</label>
                         <select className="form-select" name="employment_type" required>
                             <option value="">Välj Anställningstyp</option>
-                            <option value="Anställningstyp">Tillsvidareanställning</option>
+                            <option value="Tillsvidareanställning">Tillsvidareanställning</option>
                             <option value="Visstidsanställning">Visstidsanställning</option>
                             <option value="Provanställning">Provanställning</option>
                             <option value="Konsult ">Konsult</option>
