@@ -89,7 +89,7 @@ class UnitController extends AbstractController
                         'unit_id'=>$unit->getId(),
                         /* 'assignedWorker'=>$unit->getAssignedWorker() */
                     ];
-                }, $units); 
+                }, $units); /* ändra detta till ->toArray() */
                 
                 return new JsonResponse(['success' => $unitsArray]);
                          

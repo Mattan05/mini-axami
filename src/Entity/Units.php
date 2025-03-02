@@ -194,4 +194,20 @@ class Units
 
         return $this;
     }
+
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->id,
+            'description' => $this->description,
+            'customer_id' => $this->customer_id ? $this->customer_id->toArray() : null,
+            'unit_name' => $this->unit_name,
+            'timestamp' => $this->timestamp ? $this->timestamp->format('Y-m-d H:i:s') : null,
+            'status' => $this->status ? $this->status->value : null,
+            'notes' => $this->notes,
+            'workers' => array_map(fn($worker) => $worker->toArray(), $this->workers->toArray()),
+            'unitTasks' => array_map(fn($task) => $task->toArray(), $this->unitTasks->toArray()),
+        ];
+    }
+
 }

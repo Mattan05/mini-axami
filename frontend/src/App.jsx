@@ -20,6 +20,10 @@ import WorkerHome from './components/WorkerHome';
 import ShowWorkers from './components/showWorkers';
 import UpdateWorker from './components/UpdateWorker';
 import CustomerProfile from './components/CustomerProfile';
+import FaultyLicenseInfo from './components/FaultyLicenseInfo';
+import CustomerUpdate from './components/CustomerUpdate';
+import CreateUnitTask from './components/CreateUnitTask';
+import ShowUnitTasks from './components/ShowUnitTasks';
 
 export const LoadingContext = createContext();
 export const AuthContext = createContext();
@@ -33,49 +37,70 @@ function App() {
     const [userId, setUserId] = useState(null);
     const [userRole, setUserRole] = useState([]);
     const [userName, setUserName] = useState(null);
+    const [licenseValid, setLicenseValid] = useState(false);
 
     useEffect(() => {
-        async function checkSessionStatus() {
+        const checkSessionStatus = async () => {
+            setLoading(true);
             try {
                 const res = await fetch('http://localhost/mini-axami/public/api/auth', {
                     method: 'GET',
                     credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                 });
-
+    
                 const sessionData = await res.json();
-
-                if (sessionData && sessionData.success) {
+    
+                if (sessionData.success) {
                     setIsAuth(true);
                     setUserId(sessionData.success.user_id);
                     setUserRole(sessionData.success.role);
                     setUserName(sessionData.success.name);
-                    setLoading(false);
+    
+                    const licenseRes = await fetch('http://localhost/mini-axami/public/api/authLicense', {
+                        method: 'GET',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                    });
+    
+                    const licenseData = await licenseRes.json();
+               /*      console.log("licenseData");
+                    console.log(licenseData); */
+                    if(licenseData.errorLicense) {
+                        setLicenseValid(false);
+                        setIsAuth(false);
+                        return;
+                    }else if(licenseData.error){
+                        console.log('Error License: ' + licenseData.error)
+                    }
+                    setLicenseValid(licenseData.success);
                 } else {
                     setIsAuth(false);
-                    setLoading(false);
                 }
             } catch (error) {
-                console.error('Något gick fel vid hämtning av session:', error);
+                console.error("Fel vid sessionhantering:", error);
                 setIsAuth(false);
-                setLoading(false);
-            }finally {
+            } finally {
                 setLoading(false);
             }
-        }
-
+        };
+    
         checkSessionStatus();
     }, []);
-
+    
 
 
    /* PROBLEM 2025-02-10: När jag loggar in och kommer till /home. Om jag skriver i url:en till "/" så kan jag inte gå tillbaka till "/home". Om jag kollar network för
    /api/auth retunerar den att jag är inloggad. fel på isauth någonstans. checksessionstatus eller login  */
-
-    function PrivateRoute({ isAuth }) {
-        return isAuth ? <Outlet /> : <Navigate to="/" replace />;
+    function PrivateRoute({ isAuth, licenseValid, userRole }) {
+       /*  return isAuth ? <Outlet /> : <Navigate to="/" replace />; */
+        if (!isAuth) return <Navigate to="/" replace />;
+    
+        if (!licenseValid){
+            if(userRole.includes('ROLE_OWNER')) return <Navigate to="/activation" replace />; 
+            if(userRole.includes('ROLE_WORKER')) return <Navigate to="/faultyLicenseInfo" replace />; 
+        }
+        return <Outlet />;
     }
 
     function OwnerRoute({ userRole }) {
@@ -89,11 +114,12 @@ function App() {
     return (
         
         <Router basename="/mini-axami/public">
-            <h1>{JSON.stringify(loading)}</h1>
+            <h1>Loading: {JSON.stringify(loading)}</h1>
+            <h2>License: {JSON.stringify(licenseValid)}</h2>
             <Header isAuth={isAuth} userRole={userRole}/>
             <main>
                 <LoadingContext.Provider value={{loading, setLoading, error, setError}}>
-                <AuthContext.Provider value={{setIsAuth, isAuth, userId, setUserId, userRole, setUserRole, userName, setUserName}}>
+                <AuthContext.Provider value={{licenseValid, setLicenseValid, setIsAuth, isAuth, userId, setUserId, userRole, setUserRole, userName, setUserName}}>
                     {loading ? (
                     <div className="d-flex justify-content-center align-items-center vh-100">
                             <Spinner animation="border" style={{ width: '3rem', height: '3rem' }} />
@@ -116,6 +142,7 @@ function App() {
                             <Route path="/" element={<GuestHome  />} />
                             <Route path="/register" element={<Registration />} />
                             <Route path="/activation" element={<LicenseActivation />} />
+                            <Route path="/faultyLicenseInfo" element={<FaultyLicenseInfo />} />
                            {/*  <Route path="/home" element={<Home />} /> */}
                             <Route path="/customerLogin" element={<Login />} />
                             <Route path="/workerLogin" element={<WorkerLogin />} />
@@ -124,14 +151,17 @@ function App() {
                             <Route path="/unit/show" element={<ShowUnits />} /> */}
 
                             {/* Skyddade routes */}
-                            <Route element={<PrivateRoute isAuth={isAuth} />}>
+                            <Route element={<PrivateRoute isAuth={isAuth} licenseValid={licenseValid} userRole={userRole}/>}>
                                 <Route element={<OwnerRoute userRole={userRole} />}>
                                     <Route path="/home" element={<Home />} />
                                     <Route path="/unitCreate" element={<CreateUnit />} />
                                     <Route path="/unit/update/:id" element={<UnitUpdate />} />
                                     <Route path="/workerRegister" element={<WorkerRegister />} />
                                     <Route path="/updateWorker/:id" element={<UpdateWorker />} />
-                                    <Route path="/customerProfile/:id" element={<CustomerProfile />} />
+                                    <Route path="/customerProfile" element={<CustomerProfile />} />{/* /:id */}
+                                    <Route path="/updateCustomer" element={<CustomerUpdate />} />{/* /:id */}
+                                    <Route path="/createUnitTask" element={<CreateUnitTask />} />
+                                    <Route path="/showUnitTasks" element={<ShowUnitTasks />} />{/* dfsdf */}
                                 </Route>
 
                                 <Route element={<WorkerRoute userRole={userRole} />}>
@@ -139,6 +169,7 @@ function App() {
                                 </Route>
 
                                 <Route path="/unitShow" element={<ShowUnits />} />
+                                <Route path="/showUnitTasks" element={<ShowUnitTasks />} />{/* fdsfdsfsdf */}
                                 <Route path="/unit/:id" element={<UnitPage />} />
                                 <Route path="/showWorkers" element={<ShowWorkers />} /> {/* WORKERS SKA KUNNA SE SINA MEDARBETARE */}
                             </Route>

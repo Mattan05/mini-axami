@@ -2,8 +2,8 @@ import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 
 function Header({ isAuth, userRole }) {
-    console.log(userRole);
-    console.log('userrole');
+/*     console.log(userRole);
+    console.log('userrole'); */
     return ( 
         <header>
             {isAuth ? (/* DETTA KAN GÖRAS SNYGGARE BEHÖVER INTE UPPREPA HTML SÅDÄR */

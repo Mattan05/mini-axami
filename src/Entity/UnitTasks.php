@@ -115,7 +115,7 @@ class UnitTasks
         if ($creator instanceof Workers) {
             $this->createdByWorker = $creator;
             $this->createdByCustomer = null;
-        } elseif ($creator instanceof Customers) {
+        } else if ($creator instanceof Customers) {
             $this->createdByCustomer = $creator;
             $this->createdByWorker = null; 
         }
@@ -255,5 +255,22 @@ class UnitTasks
         $this->solved_by->removeElement($solvedBy);
 
         return $this;
+    }
+
+    public function toArray():array{
+        return [
+            'id' => $this->id,
+            'timestamp' => $this->timestamp,
+            'createdByWorker' => $this->createdByWorker ? $this->createdByWorker->toArray() : null, 
+            'createdByCustomer' => $this->createdByCustomer ? $this->createdByCustomer->toArray() : null, 
+            'status' => $this->status ? $this->status->value : null, 
+            'category' => $this->category ? $this->category->value : null, 
+            /* 'unitID' => array_map(fn($unit) => $unit->toArray(), $this->unitID->toArray()) */ /* FIXA DENNA SEN ELLER BEHÖVER JAG DEN? */
+            'description' => $this->description,
+            'task_title' => $this->task_title,
+            'assigned_worker' => array_map(fn($worker) => $worker->toArray(), $this->assigned_worker->toArray()), 
+            'notes' => $this->notes,
+            'solved_by' => array_map(fn($worker) => $worker->toArray(), $this->solved_by->toArray()), 
+        ];
     }
 }

@@ -16,7 +16,8 @@ class SessionController extends AbstractController{
         $userID = $session->get('user_id');
         $role = $session->get('role');
         $name = $session->get('name');
-        if(!isset($userID)){
+        
+        if(!$userID){
             return new JsonResponse(["error"=>"Unauthorized Access"]);
         } 
             return new JsonResponse(["success"=>['user_id'=>$userID, 'role'=>$role, 'name'=>$name] ]);
@@ -32,29 +33,28 @@ class SessionController extends AbstractController{
         return new JsonResponse(['success'=>'Logged out successfully']);
     }
     
-
-
-
-
-
-
-
-
-
     #[Route('/authLicense', name: 'license_auth', methods: ['GET'])] 
-    public function authLicense(Request $request, CustomersRepository $customersRepository) : JsonResponse{
+    public function authLicense(Request $request, CustomersRepository $customersRepository): JsonResponse
+    {
         $session = $request->getSession();
-        $userID = $session->get('user_id');
-        $role = $session->get('role');
-        if(isset($role) && $role === 'ROLE_OWNER'){
-            if(!$customersRepository->findOneBy(['id'=>$userID])->isLicenseValid()){
-                return new JsonResponse(["error"=>"Company License is not valid. Contact support"]);
-            }
+        $customerId = $session->get('customer_id');
+      /*   $role = $session->get('role'); */
+
+        if (!$customerId) {
+            return new JsonResponse(["error" => "Unauthorized Access"], 401);
         }
-        return new JsonResponse(['success'=>'Licensekey is valid']);
 
-        /* FIXA BÄTTRE SEDAN OCH IMPLEMENTERA */
+        $customer = $customersRepository->find($customerId);
 
+        if (!$customer) {
+            return new JsonResponse(["error" => "Customer not found"], 404);
+        }
+
+        if (/* $role === 'ROLE_OWNER' &&  */!$customer->isLicenseValid()) {
+            return new JsonResponse(["errorLicense" => "License is not valid"]);
+        }
+
+        return new JsonResponse(['success' => true]);
     }
 
 

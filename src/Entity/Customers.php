@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Constraints\Length;
 
 /* TODO: FIXA PASSWORD HASH I SET FUNKTION OSV SECURITY */
 
@@ -242,5 +243,19 @@ class Customers
         }
 
         return $this;
+    }
+
+    public function toArray():array{
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'email' => $this->getCustomerEmail(),
+            'identificationNumber' => $this->getIdentificationNumber(),
+            'roles' => $this->getRoles(),
+            'customerType'=>$this->getCustomerType(),
+            'unit_amount'=>count($this->getUnits()),
+            'worker_amount'=>count($this->getWorkers()),
+            'licenseKey'=>$this->getLicenseKey()->getLicenseKey()
+        ];
     }
 }

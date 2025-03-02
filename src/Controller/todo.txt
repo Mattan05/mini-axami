@@ -1,0 +1,1 @@
+*Kan implementera nått sånthär const API_BASE_URL = "http://localhost/mini-axami/public/api"; fetch(`${API_BASE_URL}/auth

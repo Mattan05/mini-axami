@@ -125,7 +125,7 @@ class WorkerController extends AbstractController
     
 
     #[Route('/updateWorker/{id}', name: 'update_worker')]
-    public function updateWorker(int $id, Request $request, UnitsRepository $unitsRepository, WorkersRepository $workersRepository, EntityManagerInterface $entityManager): JsonResponse{
+    public function updateWorker(int $id, SessionInterface $session, Request $request, UnitsRepository $unitsRepository, WorkersRepository $workersRepository, EntityManagerInterface $entityManager): JsonResponse{
         $data = json_decode($request->getContent(), true);
         
         $worker = $workersRepository->find($id);
@@ -133,6 +133,7 @@ class WorkerController extends AbstractController
         
         if (isset($data['newName'])) {
             $worker->setFullName($data['newName']);
+            $session->set('name',$data['newName']);
         }
         if (isset($data['newEmail'])) {
             $worker->setWorkerEmail($data['newEmail']);
@@ -192,6 +193,17 @@ class WorkerController extends AbstractController
         *lös så att workern OCH customer kan update worker (eller kanske bara customer hmm)
         *CRUD FÖR CUSTOMER update, delete, osv osv.
         *för att fixa params routes react router https://stackoverflow.com/questions/54497966/component-wont-reload-with-new-data-when-route-parameters-change
+        BEHÖVER JAG ENS PARAMS PÅ REACT. KAN BARA ANVÄND SESSION ID HELA TIDEN USERID
+        BEHÖVER HA EN ADMIN PANEL FÖR ÄGARNA AV TJÄNSTEN. DE SKA KUNNA TA BORT CUSTOMERS OCH PÅVERKA LICENSEKEYS
+        *customer ska kunna "visa licensekey"
+        *worker profile page
+
+        *när man registerar worker ska man också kunna förbestämma vilken unittask 
+        *på show worker, ska det finnas knapp för. tilldela arbetsuppgift eller något. samt på själva unittasken för customer view
+        *Kunna ändra statusar, enum
+        *ÄNDRA: unit på unittasks ska inte bara many to many
+        *worker ska ha både en knapp för tilldelade tasks och en för alla tasks
+        *notes på unittask och units
     */
 
     #[Route('/loginWorker', name: 'login_Worker')]

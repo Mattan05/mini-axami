@@ -5,7 +5,7 @@ import Select from 'react-select';
 import makeAnimated from 'react-select/animated';
 
 function UpdateWorker() {
-    const { id } = useParams();
+    const { id } = useParams(); //ta bort sen
     if(!id) return console.error('No Param Id');
     const animatedComponents = makeAnimated();
     const {setLoading} = useContext(LoadingContext);
@@ -146,6 +146,7 @@ function UpdateWorker() {
             console.log(serverRes['success']);
             if (serverRes['success']){
               setAllUnits(serverRes.success);
+              setUserName(worker.name); //BEHÖVS KANSKE EJ.
             } else {
                 console.log(serverRes.error || "Server Error occurred...");
             }

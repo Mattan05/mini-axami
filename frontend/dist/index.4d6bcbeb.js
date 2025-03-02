@@ -18609,6 +18609,14 @@ var _updateWorker = require("./components/UpdateWorker");
 var _updateWorkerDefault = parcelHelpers.interopDefault(_updateWorker);
 var _customerProfile = require("./components/CustomerProfile");
 var _customerProfileDefault = parcelHelpers.interopDefault(_customerProfile);
+var _faultyLicenseInfo = require("./components/FaultyLicenseInfo");
+var _faultyLicenseInfoDefault = parcelHelpers.interopDefault(_faultyLicenseInfo);
+var _customerUpdate = require("./components/CustomerUpdate");
+var _customerUpdateDefault = parcelHelpers.interopDefault(_customerUpdate);
+var _createUnitTask = require("./components/CreateUnitTask");
+var _createUnitTaskDefault = parcelHelpers.interopDefault(_createUnitTask);
+var _showUnitTasks = require("./components/ShowUnitTasks");
+var _showUnitTasksDefault = parcelHelpers.interopDefault(_showUnitTasks);
 var _s = $RefreshSig$();
 const LoadingContext = /*#__PURE__*/ (0, _react.createContext)();
 const AuthContext = /*#__PURE__*/ (0, _react.createContext)();
@@ -18621,8 +18629,10 @@ function App() {
     const [userId, setUserId] = (0, _react.useState)(null);
     const [userRole, setUserRole] = (0, _react.useState)([]);
     const [userName, setUserName] = (0, _react.useState)(null);
+    const [licenseValid, setLicenseValid] = (0, _react.useState)(false);
     (0, _react.useEffect)(()=>{
-        async function checkSessionStatus() {
+        const checkSessionStatus = async ()=>{
+            setLoading(true);
             try {
                 const res = await fetch('http://localhost/mini-axami/public/api/auth', {
                     method: 'GET',
@@ -18632,66 +18642,95 @@ function App() {
                     }
                 });
                 const sessionData = await res.json();
-                if (sessionData && sessionData.success) {
+                if (sessionData.success) {
                     setIsAuth(true);
                     setUserId(sessionData.success.user_id);
                     setUserRole(sessionData.success.role);
                     setUserName(sessionData.success.name);
-                    setLoading(false);
-                } else {
-                    setIsAuth(false);
-                    setLoading(false);
-                }
+                    const licenseRes = await fetch('http://localhost/mini-axami/public/api/authLicense', {
+                        method: 'GET',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const licenseData = await licenseRes.json();
+                    /*      console.log("licenseData");
+                    console.log(licenseData); */ if (licenseData.errorLicense) {
+                        setLicenseValid(false);
+                        setIsAuth(false);
+                        return;
+                    } else if (licenseData.error) console.log('Error License: ' + licenseData.error);
+                    setLicenseValid(licenseData.success);
+                } else setIsAuth(false);
             } catch (error) {
-                console.error("N\xe5got gick fel vid h\xe4mtning av session:", error);
+                console.error("Fel vid sessionhantering:", error);
                 setIsAuth(false);
-                setLoading(false);
             } finally{
                 setLoading(false);
             }
-        }
+        };
         checkSessionStatus();
     }, []);
     /* PROBLEM 2025-02-10: När jag loggar in och kommer till /home. Om jag skriver i url:en till "/" så kan jag inte gå tillbaka till "/home". Om jag kollar network för
-   /api/auth retunerar den att jag är inloggad. fel på isauth någonstans. checksessionstatus eller login  */ function PrivateRoute({ isAuth }) {
-        return isAuth ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Outlet), {}, void 0, false, {
-            fileName: "src/App.jsx",
-            lineNumber: 78,
-            columnNumber: 25
-        }, this) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Navigate), {
+   /api/auth retunerar den att jag är inloggad. fel på isauth någonstans. checksessionstatus eller login  */ function PrivateRoute({ isAuth, licenseValid, userRole }) {
+        /*  return isAuth ? <Outlet /> : <Navigate to="/" replace />; */ if (!isAuth) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Navigate), {
             to: "/",
             replace: true
         }, void 0, false, {
             fileName: "src/App.jsx",
-            lineNumber: 78,
-            columnNumber: 38
+            lineNumber: 97,
+            columnNumber: 29
+        }, this);
+        if (!licenseValid) {
+            if (userRole.includes('ROLE_OWNER')) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Navigate), {
+                to: "/activation",
+                replace: true
+            }, void 0, false, {
+                fileName: "src/App.jsx",
+                lineNumber: 100,
+                columnNumber: 56
+            }, this);
+            if (userRole.includes('ROLE_WORKER')) return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Navigate), {
+                to: "/faultyLicenseInfo",
+                replace: true
+            }, void 0, false, {
+                fileName: "src/App.jsx",
+                lineNumber: 101,
+                columnNumber: 57
+            }, this);
+        }
+        return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Outlet), {}, void 0, false, {
+            fileName: "src/App.jsx",
+            lineNumber: 103,
+            columnNumber: 16
         }, this);
     }
     function OwnerRoute({ userRole }) {
         return userRole.includes('ROLE_OWNER') ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Outlet), {}, void 0, false, {
             fileName: "src/App.jsx",
-            lineNumber: 82,
+            lineNumber: 107,
             columnNumber: 50
         }, this) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Navigate), {
             to: "/workerHome",
             replace: true
         }, void 0, false, {
             fileName: "src/App.jsx",
-            lineNumber: 82,
+            lineNumber: 107,
             columnNumber: 63
         }, this);
     }
     function WorkerRoute({ userRole }) {
         return userRole.includes('ROLE_WORKER') ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Outlet), {}, void 0, false, {
             fileName: "src/App.jsx",
-            lineNumber: 86,
+            lineNumber: 111,
             columnNumber: 51
         }, this) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Navigate), {
             to: "/home",
             replace: true
         }, void 0, false, {
             fileName: "src/App.jsx",
-            lineNumber: 86,
+            lineNumber: 111,
             columnNumber: 64
         }, this);
     }
@@ -18699,10 +18738,23 @@ function App() {
         basename: "/mini-axami/public",
         children: [
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h1", {
-                children: JSON.stringify(loading)
-            }, void 0, false, {
+                children: [
+                    "Loading: ",
+                    JSON.stringify(loading)
+                ]
+            }, void 0, true, {
                 fileName: "src/App.jsx",
-                lineNumber: 92,
+                lineNumber: 117,
+                columnNumber: 13
+            }, this),
+            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h2", {
+                children: [
+                    "License: ",
+                    JSON.stringify(licenseValid)
+                ]
+            }, void 0, true, {
+                fileName: "src/App.jsx",
+                lineNumber: 118,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _headerDefault.default), {
@@ -18710,7 +18762,7 @@ function App() {
                 userRole: userRole
             }, void 0, false, {
                 fileName: "src/App.jsx",
-                lineNumber: 93,
+                lineNumber: 119,
                 columnNumber: 13
             }, this),
             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("main", {
@@ -18723,6 +18775,8 @@ function App() {
                     },
                     children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)(AuthContext.Provider, {
                         value: {
+                            licenseValid,
+                            setLicenseValid,
                             setIsAuth,
                             isAuth,
                             userId,
@@ -18742,12 +18796,12 @@ function App() {
                                 }
                             }, void 0, false, {
                                 fileName: "src/App.jsx",
-                                lineNumber: 99,
+                                lineNumber: 125,
                                 columnNumber: 29
                             }, this)
                         }, void 0, false, {
                             fileName: "src/App.jsx",
-                            lineNumber: 98,
+                            lineNumber: 124,
                             columnNumber: 21
                         }, this) : /*    <GuestHome />, */ /* JAG BEHÖVER TÄNKA HUR JAG VILL GÖRA MED SESSIONS NÄR DET KOMMER TILL USERS OCKSÅ. HÅLLA KOLL MELLAN WORKER OCH CUSTOMER HUR VAD HMM
                         SEN ÄVEN FUNKAR INTE PASSWORD VERFICATION FÖR WORKER PÅGRUND AV VAD JAG TROR ATT SESSIONEN KRÅNGLAR PRECIS INNAN OCH I SERVER API ROUTE SÅ ANVÄNDER
@@ -18759,80 +18813,94 @@ function App() {
                                     path: "/",
                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _guestHomeDefault.default), {}, void 0, false, {
                                         fileName: "src/App.jsx",
-                                        lineNumber: 116,
+                                        lineNumber: 142,
                                         columnNumber: 54
                                     }, void 0)
                                 }, void 0, false, {
                                     fileName: "src/App.jsx",
-                                    lineNumber: 116,
+                                    lineNumber: 142,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                     path: "/register",
                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _registrationDefault.default), {}, void 0, false, {
                                         fileName: "src/App.jsx",
-                                        lineNumber: 117,
+                                        lineNumber: 143,
                                         columnNumber: 62
                                     }, void 0)
                                 }, void 0, false, {
                                     fileName: "src/App.jsx",
-                                    lineNumber: 117,
+                                    lineNumber: 143,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                     path: "/activation",
                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _licenseActivationDefault.default), {}, void 0, false, {
                                         fileName: "src/App.jsx",
-                                        lineNumber: 118,
+                                        lineNumber: 144,
                                         columnNumber: 64
                                     }, void 0)
                                 }, void 0, false, {
                                     fileName: "src/App.jsx",
-                                    lineNumber: 118,
+                                    lineNumber: 144,
+                                    columnNumber: 29
+                                }, this),
+                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
+                                    path: "/faultyLicenseInfo",
+                                    element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _faultyLicenseInfoDefault.default), {}, void 0, false, {
+                                        fileName: "src/App.jsx",
+                                        lineNumber: 145,
+                                        columnNumber: 71
+                                    }, void 0)
+                                }, void 0, false, {
+                                    fileName: "src/App.jsx",
+                                    lineNumber: 145,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                     path: "/customerLogin",
                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _loginDefault.default), {}, void 0, false, {
                                         fileName: "src/App.jsx",
-                                        lineNumber: 120,
+                                        lineNumber: 147,
                                         columnNumber: 67
                                     }, void 0)
                                 }, void 0, false, {
                                     fileName: "src/App.jsx",
-                                    lineNumber: 120,
+                                    lineNumber: 147,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                     path: "/workerLogin",
                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _workerLoginDefault.default), {}, void 0, false, {
                                         fileName: "src/App.jsx",
-                                        lineNumber: 121,
+                                        lineNumber: 148,
                                         columnNumber: 65
                                     }, void 0)
                                 }, void 0, false, {
                                     fileName: "src/App.jsx",
-                                    lineNumber: 121,
+                                    lineNumber: 148,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                     path: "/passwordValidation",
                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _validatePasswordDefault.default), {}, void 0, false, {
                                         fileName: "src/App.jsx",
-                                        lineNumber: 122,
+                                        lineNumber: 149,
                                         columnNumber: 72
                                     }, void 0)
                                 }, void 0, false, {
                                     fileName: "src/App.jsx",
-                                    lineNumber: 122,
+                                    lineNumber: 149,
                                     columnNumber: 29
                                 }, this),
                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)(PrivateRoute, {
-                                        isAuth: isAuth
+                                        isAuth: isAuth,
+                                        licenseValid: licenseValid,
+                                        userRole: userRole
                                     }, void 0, false, {
                                         fileName: "src/App.jsx",
-                                        lineNumber: 127,
+                                        lineNumber: 154,
                                         columnNumber: 45
                                     }, void 0),
                                     children: [
@@ -18841,7 +18909,7 @@ function App() {
                                                 userRole: userRole
                                             }, void 0, false, {
                                                 fileName: "src/App.jsx",
-                                                lineNumber: 128,
+                                                lineNumber: 155,
                                                 columnNumber: 49
                                             }, void 0),
                                             children: [
@@ -18849,78 +18917,114 @@ function App() {
                                                     path: "/home",
                                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _homeDefault.default), {}, void 0, false, {
                                                         fileName: "src/App.jsx",
-                                                        lineNumber: 129,
+                                                        lineNumber: 156,
                                                         columnNumber: 66
                                                     }, void 0)
                                                 }, void 0, false, {
                                                     fileName: "src/App.jsx",
-                                                    lineNumber: 129,
+                                                    lineNumber: 156,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                                     path: "/unitCreate",
                                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _createUnitDefault.default), {}, void 0, false, {
                                                         fileName: "src/App.jsx",
-                                                        lineNumber: 130,
+                                                        lineNumber: 157,
                                                         columnNumber: 72
                                                     }, void 0)
                                                 }, void 0, false, {
                                                     fileName: "src/App.jsx",
-                                                    lineNumber: 130,
+                                                    lineNumber: 157,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                                     path: "/unit/update/:id",
                                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _unitUpdateDefault.default), {}, void 0, false, {
                                                         fileName: "src/App.jsx",
-                                                        lineNumber: 131,
+                                                        lineNumber: 158,
                                                         columnNumber: 77
                                                     }, void 0)
                                                 }, void 0, false, {
                                                     fileName: "src/App.jsx",
-                                                    lineNumber: 131,
+                                                    lineNumber: 158,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                                     path: "/workerRegister",
                                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _workerRegisterDefault.default), {}, void 0, false, {
                                                         fileName: "src/App.jsx",
-                                                        lineNumber: 132,
+                                                        lineNumber: 159,
                                                         columnNumber: 76
                                                     }, void 0)
                                                 }, void 0, false, {
                                                     fileName: "src/App.jsx",
-                                                    lineNumber: 132,
+                                                    lineNumber: 159,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                                     path: "/updateWorker/:id",
                                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _updateWorkerDefault.default), {}, void 0, false, {
                                                         fileName: "src/App.jsx",
-                                                        lineNumber: 133,
+                                                        lineNumber: 160,
                                                         columnNumber: 78
                                                     }, void 0)
                                                 }, void 0, false, {
                                                     fileName: "src/App.jsx",
-                                                    lineNumber: 133,
+                                                    lineNumber: 160,
                                                     columnNumber: 37
                                                 }, this),
                                                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
-                                                    path: "/customerProfile/:id",
+                                                    path: "/customerProfile",
                                                     element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _customerProfileDefault.default), {}, void 0, false, {
                                                         fileName: "src/App.jsx",
-                                                        lineNumber: 134,
-                                                        columnNumber: 81
+                                                        lineNumber: 161,
+                                                        columnNumber: 77
                                                     }, void 0)
                                                 }, void 0, false, {
                                                     fileName: "src/App.jsx",
-                                                    lineNumber: 134,
+                                                    lineNumber: 161,
+                                                    columnNumber: 37
+                                                }, this),
+                                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
+                                                    path: "/updateCustomer",
+                                                    element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _customerUpdateDefault.default), {}, void 0, false, {
+                                                        fileName: "src/App.jsx",
+                                                        lineNumber: 162,
+                                                        columnNumber: 76
+                                                    }, void 0)
+                                                }, void 0, false, {
+                                                    fileName: "src/App.jsx",
+                                                    lineNumber: 162,
+                                                    columnNumber: 37
+                                                }, this),
+                                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
+                                                    path: "/createUnitTask",
+                                                    element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _createUnitTaskDefault.default), {}, void 0, false, {
+                                                        fileName: "src/App.jsx",
+                                                        lineNumber: 163,
+                                                        columnNumber: 76
+                                                    }, void 0)
+                                                }, void 0, false, {
+                                                    fileName: "src/App.jsx",
+                                                    lineNumber: 163,
+                                                    columnNumber: 37
+                                                }, this),
+                                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
+                                                    path: "/showUnitTasks",
+                                                    element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _showUnitTasksDefault.default), {}, void 0, false, {
+                                                        fileName: "src/App.jsx",
+                                                        lineNumber: 164,
+                                                        columnNumber: 75
+                                                    }, void 0)
+                                                }, void 0, false, {
+                                                    fileName: "src/App.jsx",
+                                                    lineNumber: 164,
                                                     columnNumber: 37
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "src/App.jsx",
-                                            lineNumber: 128,
+                                            lineNumber: 155,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
@@ -18928,98 +19032,110 @@ function App() {
                                                 userRole: userRole
                                             }, void 0, false, {
                                                 fileName: "src/App.jsx",
-                                                lineNumber: 137,
+                                                lineNumber: 167,
                                                 columnNumber: 49
                                             }, void 0),
                                             children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                                 path: "/workerHome",
                                                 element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _workerHomeDefault.default), {}, void 0, false, {
                                                     fileName: "src/App.jsx",
-                                                    lineNumber: 138,
+                                                    lineNumber: 168,
                                                     columnNumber: 72
                                                 }, void 0)
                                             }, void 0, false, {
                                                 fileName: "src/App.jsx",
-                                                lineNumber: 138,
+                                                lineNumber: 168,
                                                 columnNumber: 37
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "src/App.jsx",
-                                            lineNumber: 137,
+                                            lineNumber: 167,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                             path: "/unitShow",
                                             element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _showUnitsDefault.default), {}, void 0, false, {
                                                 fileName: "src/App.jsx",
-                                                lineNumber: 141,
+                                                lineNumber: 171,
                                                 columnNumber: 66
                                             }, void 0)
                                         }, void 0, false, {
                                             fileName: "src/App.jsx",
-                                            lineNumber: 141,
+                                            lineNumber: 171,
+                                            columnNumber: 33
+                                        }, this),
+                                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
+                                            path: "/showUnitTasks",
+                                            element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _showUnitTasksDefault.default), {}, void 0, false, {
+                                                fileName: "src/App.jsx",
+                                                lineNumber: 172,
+                                                columnNumber: 71
+                                            }, void 0)
+                                        }, void 0, false, {
+                                            fileName: "src/App.jsx",
+                                            lineNumber: 172,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                             path: "/unit/:id",
                                             element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _unitPageDefault.default), {}, void 0, false, {
                                                 fileName: "src/App.jsx",
-                                                lineNumber: 142,
+                                                lineNumber: 173,
                                                 columnNumber: 66
                                             }, void 0)
                                         }, void 0, false, {
                                             fileName: "src/App.jsx",
-                                            lineNumber: 142,
+                                            lineNumber: 173,
                                             columnNumber: 33
                                         }, this),
                                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Route), {
                                             path: "/showWorkers",
                                             element: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _showWorkersDefault.default), {}, void 0, false, {
                                                 fileName: "src/App.jsx",
-                                                lineNumber: 143,
+                                                lineNumber: 174,
                                                 columnNumber: 69
                                             }, void 0)
                                         }, void 0, false, {
                                             fileName: "src/App.jsx",
-                                            lineNumber: 143,
+                                            lineNumber: 174,
                                             columnNumber: 33
                                         }, this),
                                         " "
                                     ]
                                 }, void 0, true, {
                                     fileName: "src/App.jsx",
-                                    lineNumber: 127,
+                                    lineNumber: 154,
                                     columnNumber: 29
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "src/App.jsx",
-                            lineNumber: 115,
+                            lineNumber: 141,
                             columnNumber: 25
                         }, this)
                     }, void 0, false, {
                         fileName: "src/App.jsx",
-                        lineNumber: 96,
+                        lineNumber: 122,
                         columnNumber: 17
                     }, this)
                 }, void 0, false, {
                     fileName: "src/App.jsx",
-                    lineNumber: 95,
+                    lineNumber: 121,
                     columnNumber: 17
                 }, this)
             }, void 0, false, {
                 fileName: "src/App.jsx",
-                lineNumber: 94,
+                lineNumber: 120,
                 columnNumber: 13
             }, this)
         ]
     }, void 0, true, {
         fileName: "src/App.jsx",
-        lineNumber: 91,
+        lineNumber: 116,
         columnNumber: 9
     }, this);
 }
-_s(App, "ITkfYlboEDE1BdyqAUbLSA5VYAI=");
+_s(App, "r8sRjRkIH0IJOyrE16KizMyISUs=");
 _c = App;
 exports.default = App;
 var _c;
@@ -19030,7 +19146,7 @@ $RefreshReg$(_c, "App");
   window.$RefreshReg$ = prevRefreshReg;
   window.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"iTorj","react":"21dqq","react-router-dom":"9xmpe","./Style.css":"9gi3U","react-bootstrap/Spinner":"2r8jr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru","./components/Registration":"87Mli","./components/LicenseActivation":"1TBWP","./components/Header":"knC38","./components/GuestHome":"ljVh1","./components/Home":"5rQzE","./components/ValidatePassword":"e7pdF","./components/Login":"9LO69","./components/CreateUnit":"3bL4V","./components/ShowUnits":"bmKZj","./components/UnitPage":"il2F8","./components/UnitUpdate":"if23U","./components/WorkerLogin":"l9WvT","./components/WorkerRegister":"lQTmi","./components/WorkerHome":"f6fIj","./components/showWorkers":"eu1wu","./components/UpdateWorker":"1JP2f","./components/CustomerProfile":"blAiI"}],"9xmpe":[function(require,module,exports,__globalThis) {
+},{"react/jsx-dev-runtime":"iTorj","react":"21dqq","react-router-dom":"9xmpe","./Style.css":"9gi3U","react-bootstrap/Spinner":"2r8jr","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru","./components/Registration":"87Mli","./components/LicenseActivation":"1TBWP","./components/Header":"knC38","./components/GuestHome":"ljVh1","./components/Home":"5rQzE","./components/ValidatePassword":"e7pdF","./components/Login":"9LO69","./components/CreateUnit":"3bL4V","./components/ShowUnits":"bmKZj","./components/UnitPage":"il2F8","./components/UnitUpdate":"if23U","./components/WorkerLogin":"l9WvT","./components/WorkerRegister":"lQTmi","./components/WorkerHome":"f6fIj","./components/showWorkers":"eu1wu","./components/UpdateWorker":"1JP2f","./components/CustomerProfile":"blAiI","./components/FaultyLicenseInfo":"9Dgab","./components/CustomerUpdate":"fpo2Q","./components/CreateUnitTask":"dBX6q","./components/ShowUnitTasks":"2bBah"}],"9xmpe":[function(require,module,exports,__globalThis) {
 /**
  * React Router DOM v6.29.0
  *
@@ -27449,9 +27565,8 @@ var _react = require("react");
 var _reactDefault = parcelHelpers.interopDefault(_react);
 var _reactRouterDom = require("react-router-dom");
 function Header({ isAuth, userRole }) {
-    console.log(userRole);
-    console.log('userrole');
-    return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("header", {
+    /*     console.log(userRole);
+    console.log('userrole'); */ return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("header", {
         children: [
             isAuth ? /* DETTA KAN GÖRAS SNYGGARE BEHÖVER INTE UPPREPA HTML SÅDÄR */ userRole.includes('ROLE_WORKER') ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Link), {
                 to: "/workerHome",
@@ -27672,100 +27787,40 @@ function Home() {
     _s();
     const { isAuth, userId, setIsAuth, setUserId, userRole, setUserRole, userName, setUserName } = (0, _react.useContext)((0, _app.AuthContext));
     const navigate = (0, _reactRouterDom.useNavigate)();
-    /* console.log("before");
-    console.log(userName); */ /*  useEffect(() => {
+    /*  useEffect(() => {
         if (!isAuth) {
             navigate('/');
         }
     }, []); */ //HM checksession. DET ÄR FEL MED SESSION. I LOGIN SÅ REDIRECTAR JAG INNAN OMRENDERING EFTER SET FUNKTION PÅ USERID... HUR SKA JAG KONTROLLERA OM DET FINNS SESSION AKTIV PÅ PROTECTED ROUTES..
-    async function logout() {
-        try {
-            let res = await fetch('http://localhost/mini-axami/public/api/logout', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-            if (!res.ok) console.log('fetch failed');
-            let jsonRes = await res.json();
-            if (jsonRes.success) {
-                console.log(jsonRes.success);
-                setIsAuth(false);
-                navigate('/');
-            } else console.log(jsonRes.error);
-        } catch (error) {
-            console.log('Triggered catch', error);
-        }
-    }
-    const handleProfilePage = ()=>{
-        navigate('/customerProfile/' + userId);
-    };
-    return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
+    /*    const handleProfilePage = () => {
+        navigate('/customerProfile/'+userId);
+    }; */ return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
         children: isAuth ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
             children: [
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h1", {
-                    className: "text-center text-primary",
-                    children: "V\xe4lkommen till Mini axami Underh\xe5llssystem"
-                }, void 0, false, {
-                    fileName: "src/components/Home.jsx",
-                    lineNumber: 52,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h3", {
+                    className: "text-center text-info",
                     children: [
-                        "Your name is ",
+                        "V\xe4lkommen ",
                         /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("strong", {
                             children: userName
                         }, void 0, false, {
                             fileName: "src/components/Home.jsx",
-                            lineNumber: 53,
-                            columnNumber: 26
+                            lineNumber: 24,
+                            columnNumber: 57
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "src/components/Home.jsx",
-                    lineNumber: 53,
+                    lineNumber: 24,
                     columnNumber: 9
                 }, this),
-                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h3", {
-                    children: [
-                        "Your id is ",
-                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("strong", {
-                            children: userId
-                        }, void 0, false, {
-                            fileName: "src/components/Home.jsx",
-                            lineNumber: 54,
-                            columnNumber: 24
-                        }, this)
-                    ]
-                }, void 0, true, {
-                    fileName: "src/components/Home.jsx",
-                    lineNumber: 54,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h3", {
-                    children: [
-                        "Your role is ",
-                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("strong", {
-                            children: userRole
-                        }, void 0, false, {
-                            fileName: "src/components/Home.jsx",
-                            lineNumber: 55,
-                            columnNumber: 26
-                        }, this)
-                    ]
-                }, void 0, true, {
-                    fileName: "src/components/Home.jsx",
-                    lineNumber: 55,
-                    columnNumber: 9
-                }, this),
-                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Link), {
                     className: "btn btn-info",
-                    onClick: handleProfilePage,
+                    to: "/customerProfile",
                     children: "ProfilSida"
                 }, void 0, false, {
                     fileName: "src/components/Home.jsx",
-                    lineNumber: 57,
+                    lineNumber: 28,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Link), {
@@ -27774,7 +27829,7 @@ function Home() {
                     children: "Skapa Unit"
                 }, void 0, false, {
                     fileName: "src/components/Home.jsx",
-                    lineNumber: 58,
+                    lineNumber: 29,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Link), {
@@ -27783,7 +27838,7 @@ function Home() {
                     children: "Visa Units"
                 }, void 0, false, {
                     fileName: "src/components/Home.jsx",
-                    lineNumber: 59,
+                    lineNumber: 30,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Link), {
@@ -27792,21 +27847,30 @@ function Home() {
                     children: "Visa alla Workers"
                 }, void 0, false, {
                     fileName: "src/components/Home.jsx",
-                    lineNumber: 60,
+                    lineNumber: 31,
                     columnNumber: 9
                 }, this),
-                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
-                    onClick: logout,
-                    className: "btn bg-danger text-light",
-                    children: "Logout"
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Link), {
+                    className: "btn btn-success",
+                    to: "/createUnitTask",
+                    children: "Skapa UnitTask"
                 }, void 0, false, {
                     fileName: "src/components/Home.jsx",
-                    lineNumber: 61,
+                    lineNumber: 32,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Link), {
+                    className: "btn btn-info",
+                    to: "/showUnitTasks",
+                    children: "Visa UnitTasks"
+                }, void 0, false, {
+                    fileName: "src/components/Home.jsx",
+                    lineNumber: 33,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("hr", {}, void 0, false, {
                     fileName: "src/components/Home.jsx",
-                    lineNumber: 62,
+                    lineNumber: 34,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Link), {
@@ -27815,7 +27879,7 @@ function Home() {
                     children: "Registrera en worker"
                 }, void 0, false, {
                     fileName: "src/components/Home.jsx",
-                    lineNumber: 63,
+                    lineNumber: 35,
                     columnNumber: 9
                 }, this)
             ]
@@ -28232,7 +28296,8 @@ function CreateUnit() {
             setLoading(false);
         }
     }
-    async function handleCancel() {
+    async function handleCancel(event) {
+        event.preventDefault(); //GLÖM EJ DETTA PÅ DESSA CACNCEL!
         console.log("Canceled");
         navigate('/home');
     }
@@ -28251,7 +28316,7 @@ function CreateUnit() {
                         children: "Skapa Unit"
                     }, void 0, false, {
                         fileName: "src/components/CreateUnit.jsx",
-                        lineNumber: 57,
+                        lineNumber: 58,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("form", {
@@ -28266,7 +28331,7 @@ function CreateUnit() {
                                         children: "Unit Namn"
                                     }, void 0, false, {
                                         fileName: "src/components/CreateUnit.jsx",
-                                        lineNumber: 60,
+                                        lineNumber: 61,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
@@ -28277,13 +28342,13 @@ function CreateUnit() {
                                         required: true
                                     }, void 0, false, {
                                         fileName: "src/components/CreateUnit.jsx",
-                                        lineNumber: 61,
+                                        lineNumber: 62,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/CreateUnit.jsx",
-                                lineNumber: 59,
+                                lineNumber: 60,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -28294,7 +28359,7 @@ function CreateUnit() {
                                         children: "Beskrivning"
                                     }, void 0, false, {
                                         fileName: "src/components/CreateUnit.jsx",
-                                        lineNumber: 65,
+                                        lineNumber: 66,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("textarea", {
@@ -28305,13 +28370,13 @@ function CreateUnit() {
                                         required: true
                                     }, void 0, false, {
                                         fileName: "src/components/CreateUnit.jsx",
-                                        lineNumber: 66,
+                                        lineNumber: 67,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/CreateUnit.jsx",
-                                lineNumber: 64,
+                                lineNumber: 65,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -28323,7 +28388,7 @@ function CreateUnit() {
                                         children: "Skapa"
                                     }, void 0, false, {
                                         fileName: "src/components/CreateUnit.jsx",
-                                        lineNumber: 70,
+                                        lineNumber: 71,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
@@ -28332,30 +28397,30 @@ function CreateUnit() {
                                         children: "Avbryt"
                                     }, void 0, false, {
                                         fileName: "src/components/CreateUnit.jsx",
-                                        lineNumber: 71,
+                                        lineNumber: 72,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/CreateUnit.jsx",
-                                lineNumber: 69,
+                                lineNumber: 70,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "src/components/CreateUnit.jsx",
-                        lineNumber: 58,
+                        lineNumber: 59,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "src/components/CreateUnit.jsx",
-                lineNumber: 56,
+                lineNumber: 57,
                 columnNumber: 13
             }, this)
         }, void 0, false, {
             fileName: "src/components/CreateUnit.jsx",
-            lineNumber: 55,
+            lineNumber: 56,
             columnNumber: 9
         }, this) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {}, void 0, false)
     }, void 0, false);
@@ -39976,7 +40041,8 @@ function WorkerRegister() {
                                 classNamePrefix: "V\xe4lj Units",
                                 components: animatedComponents,
                                 value: selectedUnits,
-                                onChange: setSelectedUnits
+                                onChange: setSelectedUnits,
+                                required: true
                             }, void 0, false, {
                                 fileName: "src/components/WorkerRegister.jsx",
                                 lineNumber: 146,
@@ -39990,7 +40056,7 @@ function WorkerRegister() {
                                         children: "Anst\xe4llningstyp"
                                     }, void 0, false, {
                                         fileName: "src/components/WorkerRegister.jsx",
-                                        lineNumber: 159,
+                                        lineNumber: 160,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("select", {
@@ -40003,7 +40069,7 @@ function WorkerRegister() {
                                                 children: "V\xe4lj Anst\xe4llningstyp"
                                             }, void 0, false, {
                                                 fileName: "src/components/WorkerRegister.jsx",
-                                                lineNumber: 161,
+                                                lineNumber: 162,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -40011,7 +40077,7 @@ function WorkerRegister() {
                                                 children: "Tillsvidareanst\xe4llning"
                                             }, void 0, false, {
                                                 fileName: "src/components/WorkerRegister.jsx",
-                                                lineNumber: 162,
+                                                lineNumber: 163,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -40019,7 +40085,7 @@ function WorkerRegister() {
                                                 children: "Visstidsanst\xe4llning"
                                             }, void 0, false, {
                                                 fileName: "src/components/WorkerRegister.jsx",
-                                                lineNumber: 163,
+                                                lineNumber: 164,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -40027,7 +40093,7 @@ function WorkerRegister() {
                                                 children: "Provanst\xe4llning"
                                             }, void 0, false, {
                                                 fileName: "src/components/WorkerRegister.jsx",
-                                                lineNumber: 164,
+                                                lineNumber: 165,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -40035,7 +40101,7 @@ function WorkerRegister() {
                                                 children: "Konsult"
                                             }, void 0, false, {
                                                 fileName: "src/components/WorkerRegister.jsx",
-                                                lineNumber: 165,
+                                                lineNumber: 166,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -40043,19 +40109,19 @@ function WorkerRegister() {
                                                 children: "Timanst\xe4llning"
                                             }, void 0, false, {
                                                 fileName: "src/components/WorkerRegister.jsx",
-                                                lineNumber: 166,
+                                                lineNumber: 167,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "src/components/WorkerRegister.jsx",
-                                        lineNumber: 160,
+                                        lineNumber: 161,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/WorkerRegister.jsx",
-                                lineNumber: 158,
+                                lineNumber: 159,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -40067,7 +40133,7 @@ function WorkerRegister() {
                                         children: "Registrera"
                                     }, void 0, false, {
                                         fileName: "src/components/WorkerRegister.jsx",
-                                        lineNumber: 171,
+                                        lineNumber: 172,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
@@ -40076,13 +40142,13 @@ function WorkerRegister() {
                                         children: "Avbryt"
                                     }, void 0, false, {
                                         fileName: "src/components/WorkerRegister.jsx",
-                                        lineNumber: 172,
+                                        lineNumber: 173,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/WorkerRegister.jsx",
-                                lineNumber: 170,
+                                lineNumber: 171,
                                 columnNumber: 21
                             }, this)
                         ]
@@ -40534,7 +40600,7 @@ var _animatedDefault = parcelHelpers.interopDefault(_animated);
 var _s = $RefreshSig$();
 function UpdateWorker() {
     _s();
-    const { id } = (0, _reactRouterDom.useParams)();
+    const { id } = (0, _reactRouterDom.useParams)(); //ta bort sen
     if (!id) return console.error('No Param Id');
     const animatedComponents = (0, _animatedDefault.default)();
     const { setLoading } = (0, _react.useContext)((0, _app.LoadingContext));
@@ -40636,8 +40702,10 @@ function UpdateWorker() {
             const serverRes = await response.json();
             if (!response.ok) return console.log(serverRes.error || "H\xe4mtning av units misslyckades. F\xf6rs\xf6k igen.");
             console.log(serverRes['success']);
-            if (serverRes['success']) setAllUnits(serverRes.success);
-            else console.log(serverRes.error || "Server Error occurred...");
+            if (serverRes['success']) {
+                setAllUnits(serverRes.success);
+                setUserName(worker.name); //BEHÖVS KANSKE EJ.
+            } else console.log(serverRes.error || "Server Error occurred...");
         } catch (error) {
             console.error("Fel vid h\xe4mtning av Units:", error);
         }
@@ -40661,7 +40729,7 @@ function UpdateWorker() {
                         children: "Uppdatera Worker"
                     }, void 0, false, {
                         fileName: "src/components/UpdateWorker.jsx",
-                        lineNumber: 166,
+                        lineNumber: 167,
                         columnNumber: 17
                     }, this),
                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("form", {
@@ -40676,7 +40744,7 @@ function UpdateWorker() {
                                         children: "Nytt F\xf6rnamn & Efternamn"
                                     }, void 0, false, {
                                         fileName: "src/components/UpdateWorker.jsx",
-                                        lineNumber: 169,
+                                        lineNumber: 170,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
@@ -40686,13 +40754,13 @@ function UpdateWorker() {
                                         placeholder: worker.name
                                     }, void 0, false, {
                                         fileName: "src/components/UpdateWorker.jsx",
-                                        lineNumber: 170,
+                                        lineNumber: 171,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/UpdateWorker.jsx",
-                                lineNumber: 168,
+                                lineNumber: 169,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -40703,7 +40771,7 @@ function UpdateWorker() {
                                         children: "Ny Email"
                                     }, void 0, false, {
                                         fileName: "src/components/UpdateWorker.jsx",
-                                        lineNumber: 174,
+                                        lineNumber: 175,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
@@ -40713,13 +40781,13 @@ function UpdateWorker() {
                                         placeholder: worker.email
                                     }, void 0, false, {
                                         fileName: "src/components/UpdateWorker.jsx",
-                                        lineNumber: 175,
+                                        lineNumber: 176,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/UpdateWorker.jsx",
-                                lineNumber: 173,
+                                lineNumber: 174,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -40730,7 +40798,7 @@ function UpdateWorker() {
                                         children: "Nytt telefonnummer"
                                     }, void 0, false, {
                                         fileName: "src/components/UpdateWorker.jsx",
-                                        lineNumber: 179,
+                                        lineNumber: 180,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
@@ -40740,14 +40808,14 @@ function UpdateWorker() {
                                         placeholder: worker.phoneNmr
                                     }, void 0, false, {
                                         fileName: "src/components/UpdateWorker.jsx",
-                                        lineNumber: 180,
+                                        lineNumber: 181,
                                         columnNumber: 25
                                     }, this),
                                     " "
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/UpdateWorker.jsx",
-                                lineNumber: 178,
+                                lineNumber: 179,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
@@ -40755,7 +40823,7 @@ function UpdateWorker() {
                                 children: "Arbetarens Units:"
                             }, void 0, false, {
                                 fileName: "src/components/UpdateWorker.jsx",
-                                lineNumber: 183,
+                                lineNumber: 184,
                                 columnNumber: 21
                             }, this),
                             allUnits ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactSelectDefault.default), {
@@ -40772,7 +40840,7 @@ function UpdateWorker() {
                                 onChange: setSelectedUnits
                             }, void 0, false, {
                                 fileName: "src/components/UpdateWorker.jsx",
-                                lineNumber: 185,
+                                lineNumber: 186,
                                 columnNumber: 25
                             }, this) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {}, void 0, false),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -40783,7 +40851,7 @@ function UpdateWorker() {
                                         children: "Anst\xe4llningstyp"
                                     }, void 0, false, {
                                         fileName: "src/components/UpdateWorker.jsx",
-                                        lineNumber: 198,
+                                        lineNumber: 199,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("select", {
@@ -40798,7 +40866,7 @@ function UpdateWorker() {
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "src/components/UpdateWorker.jsx",
-                                                lineNumber: 200,
+                                                lineNumber: 201,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -40806,7 +40874,7 @@ function UpdateWorker() {
                                                 children: "Tillsvidareanst\xe4llning"
                                             }, void 0, false, {
                                                 fileName: "src/components/UpdateWorker.jsx",
-                                                lineNumber: 201,
+                                                lineNumber: 202,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -40814,7 +40882,7 @@ function UpdateWorker() {
                                                 children: "Visstidsanst\xe4llning"
                                             }, void 0, false, {
                                                 fileName: "src/components/UpdateWorker.jsx",
-                                                lineNumber: 202,
+                                                lineNumber: 203,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -40822,7 +40890,7 @@ function UpdateWorker() {
                                                 children: "Provanst\xe4llning"
                                             }, void 0, false, {
                                                 fileName: "src/components/UpdateWorker.jsx",
-                                                lineNumber: 203,
+                                                lineNumber: 204,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -40830,7 +40898,7 @@ function UpdateWorker() {
                                                 children: "Konsult"
                                             }, void 0, false, {
                                                 fileName: "src/components/UpdateWorker.jsx",
-                                                lineNumber: 204,
+                                                lineNumber: 205,
                                                 columnNumber: 29
                                             }, this),
                                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
@@ -40838,19 +40906,19 @@ function UpdateWorker() {
                                                 children: "Timanst\xe4llning"
                                             }, void 0, false, {
                                                 fileName: "src/components/UpdateWorker.jsx",
-                                                lineNumber: 205,
+                                                lineNumber: 206,
                                                 columnNumber: 29
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "src/components/UpdateWorker.jsx",
-                                        lineNumber: 199,
+                                        lineNumber: 200,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/UpdateWorker.jsx",
-                                lineNumber: 197,
+                                lineNumber: 198,
                                 columnNumber: 21
                             }, this),
                             /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
@@ -40862,7 +40930,7 @@ function UpdateWorker() {
                                         children: "Uppdatera"
                                     }, void 0, false, {
                                         fileName: "src/components/UpdateWorker.jsx",
-                                        lineNumber: 210,
+                                        lineNumber: 211,
                                         columnNumber: 25
                                     }, this),
                                     /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
@@ -40871,30 +40939,30 @@ function UpdateWorker() {
                                         children: "Avbryt"
                                     }, void 0, false, {
                                         fileName: "src/components/UpdateWorker.jsx",
-                                        lineNumber: 211,
+                                        lineNumber: 212,
                                         columnNumber: 25
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "src/components/UpdateWorker.jsx",
-                                lineNumber: 209,
+                                lineNumber: 210,
                                 columnNumber: 21
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "src/components/UpdateWorker.jsx",
-                        lineNumber: 167,
+                        lineNumber: 168,
                         columnNumber: 17
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "src/components/UpdateWorker.jsx",
-                lineNumber: 165,
+                lineNumber: 166,
                 columnNumber: 13
             }, this)
         }, void 0, false, {
             fileName: "src/components/UpdateWorker.jsx",
-            lineNumber: 164,
+            lineNumber: 165,
             columnNumber: 9
         }, this)
     }, void 0, false);
@@ -40925,29 +40993,287 @@ try {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _jsxDevRuntime = require("react/jsx-dev-runtime");
+var _react = require("react");
+var _app = require("../App");
 var _reactRouterDom = require("react-router-dom");
 var _s = $RefreshSig$();
 function CustomerProfile() {
     _s();
-    const { id } = (0, _reactRouterDom.useParams)();
-    return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
-        children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h1", {
+    const { licenseValid, isAuth, setIsAuth, userId, userRole, userName } = (0, _react.useContext)((0, _app.AuthContext));
+    const [customer, setCustomer] = (0, _react.useState)(null);
+    const [error, setError] = (0, _react.useState)(null);
+    const [isHovered, setIsHovered] = (0, _react.useState)(false);
+    (0, _react.useEffect)(()=>{
+        const getWorker = async ()=>{
+            try {
+                const res = await fetch(`http://localhost/mini-axami/public/api/customer/${userId}`);
+                const jsonRes = await res.json();
+                if (jsonRes.error) setError(jsonRes.error);
+                else setCustomer(jsonRes.success);
+            } catch (error) {
+                console.error("Fetch error:", error);
+                setError("Kunde inte h\xe4mta kundinformation.");
+            }
+        };
+        if (userId) getWorker();
+    }, [
+        userId
+    ]);
+    /* /revokeLicenseAccess/{id} */ async function logout() {
+        try {
+            let res = await fetch('http://localhost/mini-axami/public/api/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!res.ok) console.log('fetch failed');
+            let jsonRes = await res.json();
+            if (jsonRes.success) {
+                console.log(jsonRes.success);
+                setIsAuth(false);
+                navigate('/');
+            } else console.log(jsonRes.error);
+        } catch (error) {
+            console.log('Triggered catch', error);
+        }
+    }
+    async function revokeLicense() {
+        if (window.confirm("\xc4r du s\xe4ker p\xe5 att du vill avaktivera f\xf6retagets license?")) try {
+            let res = await fetch('http://localhost/mini-axami/public/api/revokeLicenseAccess/' + userId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!res.ok) console.log('fetch failed');
+            let jsonRes = await res.json();
+            if (jsonRes.success) {
+                console.log(jsonRes.success);
+                setIsAuth(false);
+            /* navigate('/'); */ } else console.log(jsonRes.error);
+        } catch (error) {
+            console.log('Triggered catch', error);
+        }
+    }
+    return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+        className: "container p-5",
+        children: customer ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
             children: [
-                "Customer Id: ",
-                id
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                    className: "bg-light rounded shadow p-4",
+                    children: [
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h3", {
+                            children: [
+                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("strong", {
+                                    children: "Namn:"
+                                }, void 0, false, {
+                                    fileName: "src/components/CustomerProfile.jsx",
+                                    lineNumber: 94,
+                                    columnNumber: 29
+                                }, this),
+                                " ",
+                                customer.name
+                            ]
+                        }, void 0, true, {
+                            fileName: "src/components/CustomerProfile.jsx",
+                            lineNumber: 94,
+                            columnNumber: 25
+                        }, this),
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                            children: [
+                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("strong", {
+                                    children: "Email:"
+                                }, void 0, false, {
+                                    fileName: "src/components/CustomerProfile.jsx",
+                                    lineNumber: 95,
+                                    columnNumber: 28
+                                }, this),
+                                " ",
+                                customer.email
+                            ]
+                        }, void 0, true, {
+                            fileName: "src/components/CustomerProfile.jsx",
+                            lineNumber: 95,
+                            columnNumber: 25
+                        }, this),
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                            children: [
+                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("strong", {
+                                    children: "Organisationsnummer:"
+                                }, void 0, false, {
+                                    fileName: "src/components/CustomerProfile.jsx",
+                                    lineNumber: 96,
+                                    columnNumber: 28
+                                }, this),
+                                " ",
+                                customer.identificationNumber
+                            ]
+                        }, void 0, true, {
+                            fileName: "src/components/CustomerProfile.jsx",
+                            lineNumber: 96,
+                            columnNumber: 25
+                        }, this),
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                            children: [
+                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("strong", {
+                                    children: "Kundtyp:"
+                                }, void 0, false, {
+                                    fileName: "src/components/CustomerProfile.jsx",
+                                    lineNumber: 97,
+                                    columnNumber: 28
+                                }, this),
+                                " ",
+                                customer.customerType === 'company' ? "F\xf6retag" : "Privatperson"
+                            ]
+                        }, void 0, true, {
+                            fileName: "src/components/CustomerProfile.jsx",
+                            lineNumber: 97,
+                            columnNumber: 25
+                        }, this),
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                            children: [
+                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("strong", {
+                                    children: "Antal enheter:"
+                                }, void 0, false, {
+                                    fileName: "src/components/CustomerProfile.jsx",
+                                    lineNumber: 98,
+                                    columnNumber: 28
+                                }, this),
+                                " ",
+                                customer.unit_amount
+                            ]
+                        }, void 0, true, {
+                            fileName: "src/components/CustomerProfile.jsx",
+                            lineNumber: 98,
+                            columnNumber: 25
+                        }, this),
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                            children: [
+                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("strong", {
+                                    children: "Antal arbetare:"
+                                }, void 0, false, {
+                                    fileName: "src/components/CustomerProfile.jsx",
+                                    lineNumber: 99,
+                                    columnNumber: 28
+                                }, this),
+                                " ",
+                                customer.worker_amount
+                            ]
+                        }, void 0, true, {
+                            fileName: "src/components/CustomerProfile.jsx",
+                            lineNumber: 99,
+                            columnNumber: 25
+                        }, this),
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h5", {
+                            children: "Din license:"
+                        }, void 0, false, {
+                            fileName: "src/components/CustomerProfile.jsx",
+                            lineNumber: 100,
+                            columnNumber: 25
+                        }, this),
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                            children: [
+                                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("strong", {
+                                    children: "Licensstatus:"
+                                }, void 0, false, {
+                                    fileName: "src/components/CustomerProfile.jsx",
+                                    lineNumber: 101,
+                                    columnNumber: 28
+                                }, this),
+                                " ",
+                                licenseValid ? "\u2705 Aktiv" : "\u274C Inaktiv"
+                            ]
+                        }, void 0, true, {
+                            fileName: "src/components/CustomerProfile.jsx",
+                            lineNumber: 101,
+                            columnNumber: 25
+                        }, this),
+                        /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                            title: customer.licenseKey,
+                            onMouseEnter: ()=>setIsHovered(true),
+                            onMouseLeave: ()=>setIsHovered(false),
+                            onTouchStart: ()=>setIsHovered(true),
+                            onTouchEnd: ()=>setIsHovered(false),
+                            className: "bg-dark text-light p-2 rounded",
+                            style: {
+                                width: 'fit-content'
+                            },
+                            children: isHovered ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                                children: customer.licenseKey
+                            }, void 0, false, {
+                                fileName: "src/components/CustomerProfile.jsx",
+                                lineNumber: 104,
+                                columnNumber: 33
+                            }, this) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                                children: "Visa licensenyckel"
+                            }, void 0, false, {
+                                fileName: "src/components/CustomerProfile.jsx",
+                                lineNumber: 105,
+                                columnNumber: 33
+                            }, this)
+                        }, void 0, false, {
+                            fileName: "src/components/CustomerProfile.jsx",
+                            lineNumber: 102,
+                            columnNumber: 25
+                        }, this),
+                        error && /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                            className: "text-danger",
+                            children: error
+                        }, void 0, false, {
+                            fileName: "src/components/CustomerProfile.jsx",
+                            lineNumber: 108,
+                            columnNumber: 35
+                        }, this)
+                    ]
+                }, void 0, true, {
+                    fileName: "src/components/CustomerProfile.jsx",
+                    lineNumber: 93,
+                    columnNumber: 21
+                }, this),
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                    onClick: logout,
+                    className: "btn bg-danger text-light",
+                    children: "Logout"
+                }, void 0, false, {
+                    fileName: "src/components/CustomerProfile.jsx",
+                    lineNumber: 110,
+                    columnNumber: 21
+                }, this),
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                    onClick: revokeLicense,
+                    className: "btn bg-primary text-light",
+                    children: "Avregistrera License"
+                }, void 0, false, {
+                    fileName: "src/components/CustomerProfile.jsx",
+                    lineNumber: 111,
+                    columnNumber: 21
+                }, this),
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactRouterDom.Link), {
+                    className: "btn btn-warning",
+                    to: "/updateCustomer",
+                    children: "Uppdatera Uppgifter"
+                }, void 0, false, {
+                    fileName: "src/components/CustomerProfile.jsx",
+                    lineNumber: 112,
+                    columnNumber: 21
+                }, this)
             ]
-        }, void 0, true, {
+        }, void 0, true) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h3", {
+            className: "text-center",
+            children: "Laddar in..."
+        }, void 0, false, {
             fileName: "src/components/CustomerProfile.jsx",
-            lineNumber: 6,
-            columnNumber: 9
+            lineNumber: 115,
+            columnNumber: 13
         }, this)
-    }, void 0, false);
+    }, void 0, false, {
+        fileName: "src/components/CustomerProfile.jsx",
+        lineNumber: 90,
+        columnNumber: 13
+    }, this);
 }
-_s(CustomerProfile, "r5uZNI/QgQLJ6YUN+rmQ/OIgZ/k=", false, function() {
-    return [
-        (0, _reactRouterDom.useParams)
-    ];
-});
+_s(CustomerProfile, "KJRyoMn6/iPQDJxh2KC0YzN8C58=");
 _c = CustomerProfile;
 exports.default = CustomerProfile;
 var _c;
@@ -40958,6 +41284,750 @@ $RefreshReg$(_c, "CustomerProfile");
   window.$RefreshReg$ = prevRefreshReg;
   window.$RefreshSig$ = prevRefreshSig;
 }
-},{"react/jsx-dev-runtime":"iTorj","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru","react-router-dom":"9xmpe"}]},["aQL8O","1Fqy1","gLLPy"], "gLLPy", "parcelRequire94c2")
+},{"react/jsx-dev-runtime":"iTorj","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru","../App":"e9Zfo","react":"21dqq","react-router-dom":"9xmpe"}],"9Dgab":[function(require,module,exports,__globalThis) {
+var $parcel$ReactRefreshHelpers$dba8 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
+var prevRefreshReg = window.$RefreshReg$;
+var prevRefreshSig = window.$RefreshSig$;
+$parcel$ReactRefreshHelpers$dba8.prelude(module);
+
+try {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _jsxDevRuntime = require("react/jsx-dev-runtime");
+function FaultyLicenseInfo() {
+    return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
+        children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+            className: "p-5",
+            children: [
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h1", {
+                    className: "text-center",
+                    children: "Licens ej aktiv"
+                }, void 0, false, {
+                    fileName: "src/components/FaultyLicenseInfo.jsx",
+                    lineNumber: 4,
+                    columnNumber: 9
+                }, this),
+                /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("p", {
+                    className: "text-muted text-center",
+                    children: "F\xf6retaget du arbetar f\xf6r har ingen aktiv licens. V\xe4nligen kontakta din arbetsgivare f\xf6r att l\xf6sa detta. Om du har fr\xe5gor, prata med din chef eller f\xf6retagsadministrat\xf6ren."
+                }, void 0, false, {
+                    fileName: "src/components/FaultyLicenseInfo.jsx",
+                    lineNumber: 5,
+                    columnNumber: 9
+                }, this)
+            ]
+        }, void 0, true, {
+            fileName: "src/components/FaultyLicenseInfo.jsx",
+            lineNumber: 3,
+            columnNumber: 5
+        }, this)
+    }, void 0, false);
+}
+_c = FaultyLicenseInfo;
+exports.default = FaultyLicenseInfo;
+var _c;
+$RefreshReg$(_c, "FaultyLicenseInfo");
+
+  $parcel$ReactRefreshHelpers$dba8.postlude(module);
+} finally {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+},{"react/jsx-dev-runtime":"iTorj","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru"}],"fpo2Q":[function(require,module,exports,__globalThis) {
+var $parcel$ReactRefreshHelpers$986e = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
+var prevRefreshReg = window.$RefreshReg$;
+var prevRefreshSig = window.$RefreshSig$;
+$parcel$ReactRefreshHelpers$986e.prelude(module);
+
+try {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _jsxDevRuntime = require("react/jsx-dev-runtime");
+var _react = require("react");
+var _app = require("../App");
+var _reactRouterDom = require("react-router-dom");
+var _s = $RefreshSig$();
+function CustomerUpdate() {
+    _s();
+    const { setLoading } = (0, _react.useContext)((0, _app.LoadingContext));
+    const [customer, setCustomer] = (0, _react.useState)([]); //eller array
+    const navigate = (0, _reactRouterDom.useNavigate)();
+    const { userId, setUserName } = (0, _react.useContext)((0, _app.AuthContext));
+    (0, _react.useEffect)(()=>{
+        const getCustomer = async ()=>{
+            try {
+                const res = await fetch('http://localhost/mini-axami/public/api/customer/' + userId, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const jsonRes = await res.json();
+                if (!res.ok) return console.log('fetch failed');
+                console.log(jsonRes['success']);
+                if (jsonRes['error']) return console.log(jsonRes.error || 'Server Error');
+                setCustomer(jsonRes.success);
+            } catch (error) {
+                console.log('Error ' + error);
+            }
+        };
+        getCustomer();
+    }, [
+        userId
+    ]);
+    async function handleUpdateCustomer(event) {
+        event.preventDefault();
+        let body = {};
+        const newName = event.target.customer_name.value.trim();
+        const newEmail = event.target.customer_email.value.trim();
+        const newIdentificationNumber = event.target.identificationNumber.value.trim();
+        const newCustomerType = event.target.customerType.value;
+        if (newName && newName !== customer.name) body.newName = newName;
+        if (newEmail && newEmail !== customer.email) body.newEmail = newEmail;
+        if (newIdentificationNumber && newIdentificationNumber !== customer.phoneNmr) body.newIdentificationNumber = newIdentificationNumber;
+        if (newCustomerType && newCustomerType !== customer.employmentType) body.newCustomerType = newCustomerType;
+        console.log(body);
+        try {
+            if (Object.keys(body).length > 0) {
+                const res = await fetch('http://localhost/mini-axami/public/api/updateCustomer/' + userId, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) return console.log('Fetch failed');
+                const jsonRes = await res.json();
+                if (jsonRes.error) return console.log('Error: ' + jsonRes.error);
+                console.log(jsonRes.success);
+                setCustomer(jsonRes.success);
+                setUserName(customer.name); //BEHÖVS KSK EJ.
+                navigate('/customerProfile');
+            } else console.log("Inga \xe4ndringar att uppdatera.");
+        } catch (error) {
+            console.error("Error at catch: " + error);
+        }
+    }
+    const handleCancel = ()=>{
+        navigate('/customerProfile');
+    };
+    /*    const newName = event.target.customer_name.value.trim();
+        const newEmail = event.target.customer_email.value.trim();
+        const newIdentificationNumber = event.target.identificationNumber.value.trim();
+        const newCustomerType = event.target.customer_type.value; */ return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
+        children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+            className: "container d-flex justify-content-center align-items-center min-vh-100",
+            children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                className: "card shadow-lg p-4",
+                style: {
+                    width: "400px",
+                    borderRadius: "12px"
+                },
+                children: [
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h3", {
+                        className: "text-center mb-4",
+                        children: "Uppdatera Kund"
+                    }, void 0, false, {
+                        fileName: "src/components/CustomerUpdate.jsx",
+                        lineNumber: 101,
+                        columnNumber: 17
+                    }, this),
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("form", {
+                        onSubmit: handleUpdateCustomer,
+                        onReset: handleCancel,
+                        children: [
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                                className: "mb-3",
+                                children: [
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
+                                        className: "form-label",
+                                        children: "Nytt namn"
+                                    }, void 0, false, {
+                                        fileName: "src/components/CustomerUpdate.jsx",
+                                        lineNumber: 104,
+                                        columnNumber: 25
+                                    }, this),
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
+                                        className: "form-control",
+                                        type: "text",
+                                        name: "customer_name",
+                                        placeholder: customer.name
+                                    }, void 0, false, {
+                                        fileName: "src/components/CustomerUpdate.jsx",
+                                        lineNumber: 105,
+                                        columnNumber: 25
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "src/components/CustomerUpdate.jsx",
+                                lineNumber: 103,
+                                columnNumber: 21
+                            }, this),
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                                className: "mb-3",
+                                children: [
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
+                                        className: "form-label",
+                                        children: "Ny Email"
+                                    }, void 0, false, {
+                                        fileName: "src/components/CustomerUpdate.jsx",
+                                        lineNumber: 109,
+                                        columnNumber: 25
+                                    }, this),
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
+                                        className: "form-control",
+                                        type: "email",
+                                        name: "customer_email",
+                                        placeholder: customer.email
+                                    }, void 0, false, {
+                                        fileName: "src/components/CustomerUpdate.jsx",
+                                        lineNumber: 110,
+                                        columnNumber: 25
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "src/components/CustomerUpdate.jsx",
+                                lineNumber: 108,
+                                columnNumber: 21
+                            }, this),
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                                className: "mb-3",
+                                children: [
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
+                                        className: "form-label",
+                                        children: "Nytt Identifikationsnummer"
+                                    }, void 0, false, {
+                                        fileName: "src/components/CustomerUpdate.jsx",
+                                        lineNumber: 114,
+                                        columnNumber: 25
+                                    }, this),
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
+                                        className: "form-control",
+                                        type: "tel",
+                                        name: "identificationNumber",
+                                        placeholder: customer.identificationNumber
+                                    }, void 0, false, {
+                                        fileName: "src/components/CustomerUpdate.jsx",
+                                        lineNumber: 115,
+                                        columnNumber: 25
+                                    }, this),
+                                    " "
+                                ]
+                            }, void 0, true, {
+                                fileName: "src/components/CustomerUpdate.jsx",
+                                lineNumber: 113,
+                                columnNumber: 21
+                            }, this),
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                                className: "mb-3",
+                                children: [
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
+                                        className: "form-label",
+                                        children: "V\xe4lj ny Kundtyp"
+                                    }, void 0, false, {
+                                        fileName: "src/components/CustomerUpdate.jsx",
+                                        lineNumber: 119,
+                                        columnNumber: 25
+                                    }, this),
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("select", {
+                                        className: "form-select",
+                                        name: "customerType",
+                                        children: [
+                                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
+                                                value: "",
+                                                children: [
+                                                    "Nuvarande: ",
+                                                    customer.customerType === 'company' ? "F\xf6retag" : 'Privatperson'
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "src/components/CustomerUpdate.jsx",
+                                                lineNumber: 121,
+                                                columnNumber: 29
+                                            }, this),
+                                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
+                                                value: "company",
+                                                children: "F\xf6retag"
+                                            }, void 0, false, {
+                                                fileName: "src/components/CustomerUpdate.jsx",
+                                                lineNumber: 122,
+                                                columnNumber: 29
+                                            }, this),
+                                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("option", {
+                                                value: "private",
+                                                children: "Privat Person"
+                                            }, void 0, false, {
+                                                fileName: "src/components/CustomerUpdate.jsx",
+                                                lineNumber: 123,
+                                                columnNumber: 29
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "src/components/CustomerUpdate.jsx",
+                                        lineNumber: 120,
+                                        columnNumber: 25
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "src/components/CustomerUpdate.jsx",
+                                lineNumber: 118,
+                                columnNumber: 21
+                            }, this),
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                                className: "d-flex justify-content-between",
+                                children: [
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                                        type: "submit",
+                                        className: "btn btn-warning w-50 me-2",
+                                        children: "Uppdatera"
+                                    }, void 0, false, {
+                                        fileName: "src/components/CustomerUpdate.jsx",
+                                        lineNumber: 128,
+                                        columnNumber: 25
+                                    }, this),
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                                        type: "reset",
+                                        className: "btn btn-secondary w-50",
+                                        children: "Avbryt"
+                                    }, void 0, false, {
+                                        fileName: "src/components/CustomerUpdate.jsx",
+                                        lineNumber: 129,
+                                        columnNumber: 25
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "src/components/CustomerUpdate.jsx",
+                                lineNumber: 127,
+                                columnNumber: 21
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "src/components/CustomerUpdate.jsx",
+                        lineNumber: 102,
+                        columnNumber: 17
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "src/components/CustomerUpdate.jsx",
+                lineNumber: 100,
+                columnNumber: 13
+            }, this)
+        }, void 0, false, {
+            fileName: "src/components/CustomerUpdate.jsx",
+            lineNumber: 99,
+            columnNumber: 9
+        }, this)
+    }, void 0, false);
+}
+_s(CustomerUpdate, "/PO0WmpG3Ufu9ATdpF7LaJL5UXI=", false, function() {
+    return [
+        (0, _reactRouterDom.useNavigate)
+    ];
+});
+_c = CustomerUpdate;
+exports.default = CustomerUpdate;
+var _c;
+$RefreshReg$(_c, "CustomerUpdate");
+
+  $parcel$ReactRefreshHelpers$986e.postlude(module);
+} finally {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+},{"react/jsx-dev-runtime":"iTorj","react":"21dqq","../App":"e9Zfo","react-router-dom":"9xmpe","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru"}],"dBX6q":[function(require,module,exports,__globalThis) {
+var $parcel$ReactRefreshHelpers$e597 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
+var prevRefreshReg = window.$RefreshReg$;
+var prevRefreshSig = window.$RefreshSig$;
+$parcel$ReactRefreshHelpers$e597.prelude(module);
+
+try {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _jsxDevRuntime = require("react/jsx-dev-runtime");
+var _react = require("react");
+var _reactDefault = parcelHelpers.interopDefault(_react);
+var _app = require("../App");
+var _reactRouterDom = require("react-router-dom");
+var _reactSelect = require("react-select");
+var _reactSelectDefault = parcelHelpers.interopDefault(_reactSelect);
+var _animated = require("react-select/animated");
+var _animatedDefault = parcelHelpers.interopDefault(_animated);
+var _s = $RefreshSig$();
+function CreateUnitTask() {
+    _s();
+    let navigate = (0, _reactRouterDom.useNavigate)();
+    const animatedComponents = (0, _animatedDefault.default)();
+    const { setLoading } = (0, _react.useContext)((0, _app.LoadingContext));
+    const { isAuth } = (0, _react.useContext)((0, _app.AuthContext));
+    const [allUnits, setAllUnits] = (0, _react.useState)([]);
+    const [allWorkers, setAllWorkers] = (0, _react.useState)([]);
+    const [selectedWorker, setSelectedWorkers] = (0, _react.useState)([]);
+    (0, _react.useEffect)(()=>{
+        getAllUnits();
+        getAllWorkers();
+    }, []);
+    async function getAllUnits() {
+        try {
+            let response = await fetch('http://localhost/mini-axami/public/api/getAllCompanyUnits', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            let serverRes = await response.json();
+            if (!response.ok) console.log(serverRes.error || "H\xe4mtning av units misslyckades. F\xf6rs\xf6k igen.");
+            console.log(serverRes['success']);
+            if (serverRes['success']) setAllUnits(serverRes.success);
+            else console.log(serverRes.error || "Server Error occurred...");
+        } catch (error) {
+            console.error("Fel vid h\xe4mtning av Units:", error);
+        }
+    }
+    async function getAllWorkers() {
+        try {
+            const res = await fetch('http://localhost/mini-axami/public/api/getAllCompanyWorkers', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const jsonRes = await res.json();
+            if (!res.ok) return console.log("Fetch failed");
+            if (jsonRes['success']) {
+                console.log(jsonRes['success']);
+                setAllWorkers(jsonRes['success']);
+            } else return console.error("ERROR: " + jsonRes['error']);
+        } catch (error) {
+            console.error("Fel vid h\xe4mtning av workers:", error);
+        }
+    }
+    const handleCreation = async (event)=>{
+        event.preventDefault();
+        setLoading(true);
+        /* if(!isset($data['category'], $data['description'], $data['title'], $data['unit_id'], $data['assigned_workers'])){ */ let body = JSON.stringify({
+            title: event.target.title.value,
+            description: event.target.description.value,
+            category: event.target.category.value,
+            unit_id: event.target.unitChoice.value,
+            assigned_workers: selectedWorker.map((worker)=>worker.value)
+        });
+        console.log("body:::::");
+        console.log(body);
+        try {
+            let response = await fetch('http://localhost/mini-axami/public/api/createTask', {
+                method: 'POST',
+                credentials: "include",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: body
+            });
+            const taskRes = await response.json();
+            if (taskRes.error) return console.log(taskRes.error);
+            navigate('/showUnitTasks');
+        } catch (error) {
+            console.log('Catch error: ' + error);
+        } finally{
+            setLoading(false);
+        }
+    };
+    const handleCancel = ()=>{
+        navigate('/home');
+    };
+    /* if(!isset($data['category'], $data['description'], $data['title'], $data['unit_id'], $data['assigned_workers'])){ */ return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
+        children: isAuth ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+            className: "container d-flex justify-content-center align-items-center min-vh-100",
+            children: /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                className: "card shadow-lg p-4",
+                style: {
+                    width: "400px",
+                    borderRadius: "12px"
+                },
+                children: [
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("h3", {
+                        className: "text-center mb-4",
+                        children: "Skapa UnitTask"
+                    }, void 0, false, {
+                        fileName: "src/components/CreateUnitTask.jsx",
+                        lineNumber: 114,
+                        columnNumber: 17
+                    }, this),
+                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("form", {
+                        onSubmit: handleCreation,
+                        onReset: handleCancel,
+                        children: [
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
+                                className: "form-label",
+                                children: "V\xe4lj Unit f\xf6r Task:"
+                            }, void 0, false, {
+                                fileName: "src/components/CreateUnitTask.jsx",
+                                lineNumber: 116,
+                                columnNumber: 21
+                            }, this),
+                            allUnits ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactSelectDefault.default), {
+                                name: "unitChoice",
+                                options: allUnits.map((unit)=>({
+                                        value: unit.id,
+                                        label: unit.name
+                                    })),
+                                classNamePrefix: "V\xe4lj Unit",
+                                placeholder: "V\xe4lj en Unit",
+                                required: true
+                            }, void 0, false, {
+                                fileName: "src/components/CreateUnitTask.jsx",
+                                lineNumber: 118,
+                                columnNumber: 29
+                            }, this) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {}, void 0, false),
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                                className: "mb-3",
+                                children: [
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
+                                        className: "form-label",
+                                        children: "Titel"
+                                    }, void 0, false, {
+                                        fileName: "src/components/CreateUnitTask.jsx",
+                                        lineNumber: 128,
+                                        columnNumber: 25
+                                    }, this),
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("input", {
+                                        className: "form-control",
+                                        type: "text",
+                                        name: "title",
+                                        placeholder: "Titel f\xf6r uppgiften",
+                                        required: true
+                                    }, void 0, false, {
+                                        fileName: "src/components/CreateUnitTask.jsx",
+                                        lineNumber: 129,
+                                        columnNumber: 25
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "src/components/CreateUnitTask.jsx",
+                                lineNumber: 127,
+                                columnNumber: 21
+                            }, this),
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                                className: "mb-3",
+                                children: [
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
+                                        className: "form-label",
+                                        children: "Beskrivning"
+                                    }, void 0, false, {
+                                        fileName: "src/components/CreateUnitTask.jsx",
+                                        lineNumber: 133,
+                                        columnNumber: 25
+                                    }, this),
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("textarea", {
+                                        className: "form-control",
+                                        type: "text",
+                                        name: "description",
+                                        placeholder: "Beskrivning av uppgiften",
+                                        required: true
+                                    }, void 0, false, {
+                                        fileName: "src/components/CreateUnitTask.jsx",
+                                        lineNumber: 134,
+                                        columnNumber: 25
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "src/components/CreateUnitTask.jsx",
+                                lineNumber: 132,
+                                columnNumber: 21
+                            }, this),
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
+                                className: "form-label",
+                                children: "V\xe4lj kategori"
+                            }, void 0, false, {
+                                fileName: "src/components/CreateUnitTask.jsx",
+                                lineNumber: 137,
+                                columnNumber: 21
+                            }, this),
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactSelectDefault.default), {
+                                name: "category",
+                                options: [
+                                    {
+                                        value: "Maintenance",
+                                        label: "Maintenance"
+                                    },
+                                    {
+                                        value: "Repair",
+                                        label: "Repair"
+                                    },
+                                    {
+                                        value: "Installation",
+                                        label: "Installation"
+                                    },
+                                    {
+                                        value: "Monitoring",
+                                        label: "Monitoring"
+                                    },
+                                    {
+                                        value: "Inspection",
+                                        label: "Inspection"
+                                    },
+                                    {
+                                        value: "Cleaning",
+                                        label: "Cleaning"
+                                    },
+                                    {
+                                        value: "Upgrading",
+                                        label: "Upgrading"
+                                    },
+                                    {
+                                        value: "Troubleshooting",
+                                        label: "Troubleshooting"
+                                    }
+                                ],
+                                classNamePrefix: "V\xe4lj Kategori",
+                                placeholder: "V\xe4lj en kategori",
+                                required: true
+                            }, void 0, false, {
+                                fileName: "src/components/CreateUnitTask.jsx",
+                                lineNumber: 138,
+                                columnNumber: 21
+                            }, this),
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("label", {
+                                className: "form-label",
+                                children: "Tilldela uppgiften:"
+                            }, void 0, false, {
+                                fileName: "src/components/CreateUnitTask.jsx",
+                                lineNumber: 156,
+                                columnNumber: 21
+                            }, this),
+                            allWorkers ? /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _reactSelectDefault.default), {
+                                isMulti: true,
+                                name: "assignedWorkers",
+                                options: allWorkers.map((worker)=>({
+                                        value: worker.id,
+                                        label: worker.name
+                                    })),
+                                className: "basic-multi-select",
+                                classNamePrefix: "Tilldela Worker",
+                                placeholder: "Tilldela en eller flera workers",
+                                components: animatedComponents,
+                                value: selectedWorker,
+                                onChange: setSelectedWorkers
+                            }, void 0, false, {
+                                fileName: "src/components/CreateUnitTask.jsx",
+                                lineNumber: 158,
+                                columnNumber: 25
+                            }, this) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {}, void 0, false),
+                            /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("div", {
+                                className: "d-flex justify-content-between mt-3",
+                                children: [
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                                        type: "submit",
+                                        className: "btn btn-primary w-50 me-2",
+                                        children: "Skapa"
+                                    }, void 0, false, {
+                                        fileName: "src/components/CreateUnitTask.jsx",
+                                        lineNumber: 174,
+                                        columnNumber: 25
+                                    }, this),
+                                    /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)("button", {
+                                        type: "reset",
+                                        className: "btn btn-secondary w-50",
+                                        children: "Avbryt"
+                                    }, void 0, false, {
+                                        fileName: "src/components/CreateUnitTask.jsx",
+                                        lineNumber: 175,
+                                        columnNumber: 25
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "src/components/CreateUnitTask.jsx",
+                                lineNumber: 173,
+                                columnNumber: 21
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "src/components/CreateUnitTask.jsx",
+                        lineNumber: 115,
+                        columnNumber: 17
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "src/components/CreateUnitTask.jsx",
+                lineNumber: 113,
+                columnNumber: 13
+            }, this)
+        }, void 0, false, {
+            fileName: "src/components/CreateUnitTask.jsx",
+            lineNumber: 112,
+            columnNumber: 9
+        }, this) : /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {}, void 0, false)
+    }, void 0, false);
+}
+_s(CreateUnitTask, "xx+ADJcmuYz7lHe2MVMY3yOyOGU=", false, function() {
+    return [
+        (0, _reactRouterDom.useNavigate)
+    ];
+});
+_c = CreateUnitTask;
+exports.default = CreateUnitTask;
+var _c;
+$RefreshReg$(_c, "CreateUnitTask");
+
+  $parcel$ReactRefreshHelpers$e597.postlude(module);
+} finally {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+},{"react/jsx-dev-runtime":"iTorj","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru","react":"21dqq","../App":"e9Zfo","react-router-dom":"9xmpe","react-select":"2Hkye","react-select/animated":"jDp2W"}],"2bBah":[function(require,module,exports,__globalThis) {
+var $parcel$ReactRefreshHelpers$0f41 = require("@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js");
+var prevRefreshReg = window.$RefreshReg$;
+var prevRefreshSig = window.$RefreshSig$;
+$parcel$ReactRefreshHelpers$0f41.prelude(module);
+
+try {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _jsxDevRuntime = require("react/jsx-dev-runtime");
+var _react = require("react");
+var _reactRouterDom = require("react-router-dom");
+var _app = require("../App");
+var _s = $RefreshSig$();
+function showUnitTasks() {
+    _s();
+    const [allTasks, setAllTasks] = (0, _react.useState)([]);
+    const { setLoading } = (0, _react.useContext)((0, _app.LoadingContext));
+    const navigate = (0, _reactRouterDom.useNavigate)();
+    (0, _react.useEffect)(()=>{
+        getAllTasks();
+    }, []);
+    async function getAllTasks() {
+        try {
+            const res = await fetch('http://localhost/mini-axami/public/api/getUnitTasks', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            const jsonRes = await res.json();
+            if (!res.ok) return console.log("Fetch failed");
+            if (jsonRes['success']) {
+                console.log(jsonRes['success']);
+                setAllTasks(jsonRes['success']);
+            } else return console.error("ERROR: " + jsonRes['error']);
+        } catch (error) {
+            console.error("Fel vid h\xe4mtning av workers:", error);
+        }
+    }
+    return /*#__PURE__*/ (0, _jsxDevRuntime.jsxDEV)((0, _jsxDevRuntime.Fragment), {
+        children: JSON.stringify(allTasks)
+    }, void 0, false);
+}
+_s(showUnitTasks, "/m3+/hmDNnzwE3fdA1HecPbe7ig=", false, function() {
+    return [
+        (0, _reactRouterDom.useNavigate)
+    ];
+});
+exports.default = showUnitTasks;
+
+  $parcel$ReactRefreshHelpers$0f41.postlude(module);
+} finally {
+  window.$RefreshReg$ = prevRefreshReg;
+  window.$RefreshSig$ = prevRefreshSig;
+}
+},{"react/jsx-dev-runtime":"iTorj","react":"21dqq","react-router-dom":"9xmpe","../App":"e9Zfo","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","@parcel/transformer-react-refresh-wrap/lib/helpers/helpers.js":"km3Ru"}]},["aQL8O","1Fqy1","gLLPy"], "gLLPy", "parcelRequire94c2")
 
 //# sourceMappingURL=index.4d6bcbeb.js.map

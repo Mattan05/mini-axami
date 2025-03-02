@@ -152,6 +152,7 @@ function WorkerRegister() {
                             components={animatedComponents} 
                             value={selectedUnits}
                             onChange={setSelectedUnits}
+                            required
                         />
                         : <></>
                     }

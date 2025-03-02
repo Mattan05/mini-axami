@@ -5,6 +5,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Repository\LicensekeysRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -230,7 +231,7 @@ public function getCustomer(int $id, Request $request, CustomersRepository $cust
         return new JsonResponse(['error' => 'No customer found.'], 404);
     }
 
-    $customerArr = [
+   /*  $customerArr = [
         'name' => $customer->getName(),
         'email' => $customer->getCustomerEmail(),
         'identificationNumber' => $customer->getIdentificationNumber(),
@@ -238,9 +239,9 @@ public function getCustomer(int $id, Request $request, CustomersRepository $cust
         'timestamp' => $customer->getTimestamp()->format('Y-m-d H:i'),
         'id' => $customer->getId(),
         'customerType' => $customer->getCustomerType(),
-    ];
+    ]; */
 
-    return new JsonResponse(['success' => $customerArr]);
+    return new JsonResponse(['success' => $customer->toArray()]);
 }
 
     #[Route('/getAllCompanies', name:'companies_get', methods:['GET'])]
@@ -251,18 +252,61 @@ public function getCustomer(int $id, Request $request, CustomersRepository $cust
             return new JsonResponse(['error' => 'No companies found.'], 404);
         }
 
-        $customerArr = array_map(function($companies){
-            return [
-            'name' => $companies->getName(),
-            'email' => $companies->getCustomerEmail(),
-            'identificationNumber' => $companies->getIdentificationNumber(),
-            'roles' => $companies->getRoles(),
-            'id' => $companies->getId(),
-            'customerType' => $companies->getCustomerType(),
-        ];
+        
+
+        $customerArr = array_map(function($company){
+            return $company->toArray();
     },$companies);
+
+  /*   $customerArr = foreach ($companies as $customer) {
+        $customer->toArray();
+    } */
     
         return new JsonResponse(['success' => $customerArr]);
+    }
+
+    #[Route('/revokeLicenseAccess/{id}', name:'revoke_License')]
+    public function revokeLicenseAccess(int $id, CustomersRepository $customersRepository, EntityManagerInterface $entityManager):JsonResponse{
+        $customer = $customersRepository->find($id);
+        if(!$customer) return new JsonResponse(['error'=>'Customer entity was not found']);
+        $customer->setLicenseValid(false);
+        
+        $licenseKey = $customer->getLicenseKey();
+        if(!$licenseKey) return new JsonResponse(['error'=>'Licensekey for customer not found']);
+        $licenseKey->setIsActive(false);
+        $entityManager->persist($customer);
+        $entityManager->persist($licenseKey);
+        $entityManager->flush();
+        return new JsonResponse(['success'=>'License not valid']);
+    }
+
+    #[Route('/updateCustomer/{id}', name:'update_customer')]
+    public function updateCustomer(int $id, SessionInterface $session, CustomersRepository $customersRepository, Request $request, EntityManagerInterface $entityManager):JsonResponse{
+        $data = json_decode($request->getContent(), true);
+        
+        $customer = $customersRepository->find($id);
+        if (!$customer) return new JsonResponse(['error' => 'Customer not found'], 404);
+        
+        if (isset($data['newName'])) {
+            $customer->setName($data['newName']);
+            $session->set('name', $data['newName']);
+        }
+        if (isset($data['newEmail'])) {
+            $customer->setCustomerEmail($data['newEmail']);
+        }
+        if (isset($data['newIdentificationNumber'])) {
+            $customer->setIdentificationNumber($data['newIdentificationNumber']);
+        }
+        if (isset($data['newCustomerType'])) {
+            $customer->setCustomerType($data['newCustomerType']);
+        }  
+   
+        $entityManager->persist($customer);
+        $entityManager->flush();
+
+        $customer = $customer->toArray();
+
+        return new JsonResponse(['success' => $customer]);
     }
    
 }

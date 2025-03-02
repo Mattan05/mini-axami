@@ -46,7 +46,8 @@ function CreateUnit() {
           }
     }
 
-    async function handleCancel(){
+    async function handleCancel(event){
+        event.preventDefault(); //GLÖM EJ DETTA PÅ DESSA CACNCEL!
         console.log("Canceled");
         navigate('/home')
     }
